@@ -24,9 +24,9 @@ CREATE TABLE Creator (
     user_id INT NOT NULL,
     display_name VARCHAR(255) NOT NULL UNIQUE,
     profile_description VARCHAR(1000) NOT NULL,
-    profile_image_filepath VARCHAR(255) NOT NULL,
-    creator_follow_count INT NOT NULL,
-    creator_view_count INT NOT NULL,
+    profile_image_filepath VARCHAR(255) NOT NULL DEFAULT "default/image/filepath.png",
+    follow_count INT NOT NULL,
+    view_count INT NOT NULL,
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
     ON DELETE CASCADE
@@ -36,7 +36,7 @@ CREATE TABLE Creator (
 CREATE TABLE Viewer (
     user_id INT NOT NULL,
     age INT NOT NULL,
-    preferred_language VARCHAR(20) NOT NULL,
+    preferred_language VARCHAR(20) NOT NULL DEFAULT "English",
     CHECK (preferred_language IN ('English', 'Mandarin Chinese', 'Hindi, Spanish', 'Arabic', 'French', 'Bengali', 'Portuguese', 'Indonesian', 'Urdu', 'Russian', 'German', 'Japanese')),
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
