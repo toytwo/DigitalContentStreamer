@@ -76,6 +76,8 @@ CREATE TABLE SubscriptionTier (
     tier_id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
+    price INT NOT NULL,
+    CHECK (price > 0),
     PRIMARY KEY (tier_id)
 );
 
@@ -220,3 +222,70 @@ CREATE TABLE ContentRegionBlock (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+
+CREATE TABLE Watches (
+    user_id INT NOT NULL,
+    content_id INT NOT NULL,
+    total_watch_time INT NOT NULL,
+    total_watch_count INT NOT NULL,
+    PRIMARY KEY (user_id, content_id),
+    CHECK (total_watch_time >= 0),
+    CHECK (total_watch_count >= 0),
+    FOREIGN KEY (user_id) REFERENCES Viewer(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (content_id) REFERENCES ContentItem(content_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE ROLE IF NOT EXISTS viewer_role;
+CREATE ROLE IF NOT EXISTS creator_role;
+CREATE ROLE IF NOT EXISTS admin_role;
+
+GRANT SELECT ON SubscriptionTier TO viewer_role;
+GRANT SELECT ON SubscriptionPriceHistory TO viewer_role;
+GRANT INSERT ON Follows TO viewer_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Viewer TO viewer_role;
+GRANT SELECT ON Creator TO viewer_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON digitalcontentstreamer.`User` TO viewer_role;
+GRANT SELECT ON Region TO viewer_role;
+GRANT SELECT ON Collection TO viewer_role;
+GRANT SELECT ON ContentItem TO viewer_role;
+GRANT SELECT ON ContentMetadata TO viewer_role;
+GRANT SELECT, INSERT, DELETE ON Bookmark TO viewer_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Rating TO viewer_role;
+GRANT SELECT ON ContentRegionBlock TO viewer_role;
+GRANT SELECT ON Watches TO viewer_role;
+
+GRANT SELECT ON SubscriptionTier TO creator_role;
+GRANT SELECT ON SubscriptionPriceHistory TO creator_role;
+GRANT SELECT ON Follows TO creator_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Creator TO creator_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON digitalcontentstreamer.`User` TO creator_role;
+GRANT SELECT ON Region TO creator_role;
+GRANT SELECT ON Collection TO creator_role;
+GRANT SELECT ON ContentItem TO creator_role;
+GRANT SELECT ON ContentMetadata TO creator_role;
+GRANT SELECT ON Rating TO creator_role;
+GRANT SELECT ON ContentRegionBlock TO creator_role;
+GRANT SELECT ON Watches TO creator_role;
+
+GRANT ALL PRIVILEGES ON Subscription TO admin_role;
+GRANT ALL PRIVILEGES ON SubscriptionTier TO admin_role;
+GRANT ALL PRIVILEGES ON SubscriptionPriceHistory TO admin_role;
+GRANT ALL PRIVILEGES ON SubscriptionTransition TO admin_role;
+GRANT ALL PRIVILEGES ON Invoice TO admin_role;
+GRANT ALL PRIVILEGES ON Follows TO admin_role;
+GRANT ALL PRIVILEGES ON Admin TO admin_role;
+GRANT ALL PRIVILEGES ON Viewer TO admin_role;
+GRANT ALL PRIVILEGES ON Creator TO admin_role;
+GRANT ALL PRIVILEGES ON digitalcontentstreamer.`User` TO admin_role;
+GRANT ALL PRIVILEGES ON Region TO admin_role;
+GRANT ALL PRIVILEGES ON Collection TO admin_role;
+GRANT ALL PRIVILEGES ON ContentItem TO admin_role;
+GRANT ALL PRIVILEGES ON ContentMetadata TO admin_role;
+GRANT ALL PRIVILEGES ON Bookmark TO admin_role;
+GRANT ALL PRIVILEGES ON Rating TO admin_role;
+GRANT ALL PRIVILEGES ON ContentRegionBlock TO admin_role;
+GRANT ALL PRIVILEGES ON Watches TO admin_role;
