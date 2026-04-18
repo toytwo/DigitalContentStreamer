@@ -2,6 +2,12 @@ DROP DATABASE IF EXISTS digitalcontentstreamer;
 CREATE DATABASE digitalcontentstreamer;
 USE digitalcontentstreamer;
 
+CREATE TABLE Region (
+    region_id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    PRIMARY KEY (region_id)
+);
+
 CREATE TABLE User (
     user_id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -37,7 +43,7 @@ CREATE TABLE Viewer (
     user_id INT NOT NULL,
     age INT NOT NULL,
     preferred_language VARCHAR(20) NOT NULL DEFAULT "English",
-    CHECK (preferred_language IN ('English', 'Mandarin Chinese', 'Hindi, Spanish', 'Arabic', 'French', 'Bengali', 'Portuguese', 'Indonesian', 'Urdu', 'Russian', 'German', 'Japanese')),
+    CHECK (preferred_language IN ('English', 'Mandarin Chinese', 'Hindi', 'Spanish', 'Arabic', 'French', 'Bengali', 'Portuguese', 'Indonesian', 'Urdu', 'Russian', 'German', 'Japanese')),
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
     ON DELETE CASCADE
@@ -137,6 +143,80 @@ CREATE TABLE Invoice (
     CHECK (period_end >= period_start),
     CHECK (amount >= 0),
     FOREIGN KEY (user_id) REFERENCES Viewer(user_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE Collection (
+    collection_id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    type VARCHAR(40) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    PRIMARY KEY (collection_id),
+    CHECK (type IN ('season', 'series', 'album', 'franchise', 'playlist'))
+);
+
+CREATE TABLE ContentItem (
+    content_id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    type VARCHAR(40) NOT NULL,
+    release_date DATE NOT NULL,
+    required_tier INT NOT NULL,
+    PRIMARY KEY (content_id),
+    CHECK (type IN ('movie', 'episode', 'song', 'article', 'podcast')),
+    FOREIGN KEY (required_tier) REFERENCES SubscriptionTier(tier_id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE ContentMetadata (
+    content_id INT NOT NULL,
+    genre VARCHAR(50) NOT NULL,
+    runtime_minutes INT NOT NULL,
+    original_language VARCHAR(50) NOT NULL,
+    age_rating VARCHAR(10) NOT NULL,
+    PRIMARY KEY (content_id),
+    CHECK (runtime_minutes >= 0),
+    FOREIGN KEY (content_id) REFERENCES ContentItem(content_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE Bookmark (
+    viewer_id INT NOT NULL,
+    content_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (viewer_id, content_id),
+    FOREIGN KEY (viewer_id) REFERENCES Viewer(user_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    FOREIGN KEY (content_id) REFERENCES ContentItem(content_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE Rating (
+    viewer_id INT NOT NULL,
+    content_id INT NOT NULL,
+    score INT NOT NULL,
+    PRIMARY KEY (viewer_id, content_id),
+    CHECK (score BETWEEN 1 AND 5),
+    FOREIGN KEY (viewer_id) REFERENCES Viewer(user_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    FOREIGN KEY (content_id) REFERENCES ContentItem(content_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE ContentRegionBlock (
+    content_id INT NOT NULL,
+    region_id INT NOT NULL,
+    PRIMARY KEY (content_id, region_id),
+    FOREIGN KEY (content_id) REFERENCES ContentItem(content_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    FOREIGN KEY (region_id) REFERENCES Region(region_id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
