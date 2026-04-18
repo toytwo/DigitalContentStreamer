@@ -164,11 +164,15 @@ CREATE TABLE ContentItem (
     type VARCHAR(40) NOT NULL,
     release_date DATE NOT NULL,
     required_tier INT NOT NULL,
+    collection_id INT,
     PRIMARY KEY (content_id),
     CHECK (type IN ('movie', 'episode', 'song', 'article', 'podcast')),
     FOREIGN KEY (required_tier) REFERENCES SubscriptionTier(tier_id)
     ON DELETE RESTRICT
-    ON UPDATE CASCADE
+    ON UPDATE CASCADE,
+    FOREIGN KEY (collection_id) REFERENCES Collection(collection_id)
+    ON DELETE SET NULL
+    ON UPDATE SET NULL
 );
 
 CREATE TABLE ContentMetadata (
