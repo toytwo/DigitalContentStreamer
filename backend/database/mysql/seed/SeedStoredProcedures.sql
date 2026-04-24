@@ -1,0 +1,4 @@
+CREATE PROCEDURE TestGetAllUsers()
+BEGIN
+    SELECT * FROM User;
+END ;
