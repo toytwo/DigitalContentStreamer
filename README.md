@@ -59,6 +59,7 @@ DB_CONN_LIMIT=5
 
 1. From `frontend/`, run `npm run dev`.
 2. Open `http://localhost:3000`.
+3. The login page lives at `http://localhost:3000/login` and uses the mock accounts `user / userpw`, `creator / creatorpw`, and `admin / adminpw`.
 
 ### Git
 
