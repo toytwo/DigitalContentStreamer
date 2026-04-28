@@ -1,10 +1,10 @@
 export type SessionUser = {
-  username: string;
-  role: "user" | "creator" | "admin";
+  email: string;
+  role: "viewer" | "creator" | "admin";
 };
 
 export type LoginRequest = {
-  username: string;
+  email: string;
   password: string;
 };
 
@@ -36,7 +36,7 @@ export async function login(request: LoginRequest): Promise<SessionUser> {
 
   const data = await parseJson(response);
   if (!response.ok || !data?.success || !data.user) {
-    throw new Error(data?.detail ?? "Invalid username or password");
+    throw new Error(data?.detail ?? "Invalid email or password");
   }
 
   return data.user;

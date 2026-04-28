@@ -1,35 +1,15 @@
 from __future__ import annotations
 
-import bcrypt
+from database.repositories.auth_repo import authenticate_user
 
-from auth.mock_users import MOCK_USERS, MockUser
 from auth.session_store import SessionUser, create_session, delete_session, get_session
 
-
-_PASSWORD_HASHES: dict[str, bytes] = {
-    username: bcrypt.hashpw(mock_user.password.encode("utf-8"), bcrypt.gensalt(rounds=10))
-    for username, mock_user in MOCK_USERS.items()
-}
-
-
-def _verify_mock_user(username: str, password: str) -> MockUser | None:
-    mock_user = MOCK_USERS.get(username)
-    if mock_user is None:
+def authenticate(email: str, password: str) -> tuple[str, SessionUser] | None:
+    user_record = authenticate_user(email.strip(), password)
+    if user_record is None:
         return None
 
-    password_hash = _PASSWORD_HASHES[username]
-    if not bcrypt.checkpw(password.encode("utf-8"), password_hash):
-        return None
-
-    return mock_user
-
-
-def authenticate(username: str, password: str) -> tuple[str, SessionUser] | None:
-    mock_user = _verify_mock_user(username.strip(), password)
-    if mock_user is None:
-        return None
-
-    session_user = SessionUser(username=mock_user.username, role=mock_user.role)
+    session_user = SessionUser(email=user_record["email"], role=user_record["user_role"])
     session_id = create_session(session_user)
     return session_id, session_user
 

@@ -9,7 +9,7 @@ SESSION_COOKIE_NAME = "dcs_session"
 
 @dataclass(frozen=True)
 class SessionUser:
-    username: str
+    email: str
     role: str
 
 
