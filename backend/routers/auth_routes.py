@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from auth.dependencies import require_authenticated_user
 from auth.session_store import SESSION_COOKIE_NAME
@@ -10,17 +10,17 @@ router = APIRouter()
 
 
 class LoginRequest(BaseModel):
-    username: str = Field(min_length=1, max_length=50)
+    email: EmailStr
     password: str = Field(min_length=1, max_length=128)
 
 
 @router.post("/login")
 def login_endpoint(payload: LoginRequest, response: Response):
-    auth_result = authenticate(payload.username, payload.password)
+    auth_result = authenticate(payload.email, payload.password)
     if auth_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
+            detail="Invalid email or password",
         )
 
     session_id, session_user = auth_result
@@ -32,7 +32,7 @@ def login_endpoint(payload: LoginRequest, response: Response):
         path="/",
         max_age=60 * 60 * 8,
     )
-    return {"success": True, "user": {"username": session_user.username, "role": session_user.role}}
+    return {"success": True, "user": {"email": session_user.email, "role": session_user.role}}
 
 
 @router.get("/me")
@@ -46,7 +46,7 @@ def current_session(
             detail="Not authenticated",
         )
 
-    return {"success": True, "user": {"username": session_user.username, "role": session_user.role}}
+    return {"success": True, "user": {"email": session_user.email, "role": session_user.role}}
 
 
 @router.post("/logout")

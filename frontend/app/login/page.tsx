@@ -7,7 +7,7 @@ import { getCurrentSession, login, type SessionUser } from "../../lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +32,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login({ username, password });
+      await login({ email, password });
       router.replace("/");
       router.refresh();
     } catch (error) {
@@ -49,23 +49,23 @@ export default function LoginPage() {
           <div className="mb-8 space-y-2 text-center">
             <p className="text-sm uppercase tracking-[0.35em] text-sky-400/80">DigitalContentStreamer</p>
             <h1 className="text-3xl font-semibold text-white">Login</h1>
-            <p className="text-sm text-slate-400">Use one of the mock demo accounts to continue.</p>
+            <p className="text-sm text-slate-400">Use your account email and password to continue.</p>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-200" htmlFor="username">
-                Username
+              <label className="block text-sm font-medium text-slate-200" htmlFor="email">
+                Email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
-                placeholder="username"
+                placeholder="name@example.com"
               />
             </div>
 
@@ -97,7 +97,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-400">
-            Demo logins: <span className="text-slate-200">user / userpw</span>, <span className="text-slate-200">creator / creatorpw</span>, or <span className="text-slate-200">admin / adminpw</span>.
+            Demo logins now come from the database-backed seed data, so use a real account email and its stored password.
           </div>
         </section>
       </div>
