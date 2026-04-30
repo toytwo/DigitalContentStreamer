@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TestNamePlate } from "./components/TestNamePlate";
 import { useParams } from "next/navigation";
+
+import { AppShell, GalleryCard, PageCard, PageHeader, SectionCard } from "../../../components/ui";
 
 export default function Page(){
     // Here is how you get the path variables
@@ -11,16 +12,8 @@ export default function Page(){
         ? params.starting_step[0]
         : params.starting_step;
     // use a usestate when you want a change to be reflected in the page. React forces a refresh.
-    const [allUsers, setAllUsers] = useState<string[]>();
-    // otherwise just use a const
-    const colorPalette = [
-        "bg-orange-400",
-        "bg-yellow-400",
-        "bg-green-400",
-        "bg-blue-400",
-        "bg-indigo-400",
-        "bg-violet-400",
-    ];
+    const [allUsers, setAllUsers] = useState<string[] | null>(null);
+    const tones = ["accent", "success", "muted", "danger", "default"] as const;
     // Runs on mount because nothing in []
     useEffect(() => {
         fetch(
@@ -41,33 +34,42 @@ export default function Page(){
     }, [])
 
     // You can return alternate html depending on state.
-    if(!allUsers){
+    if (!allUsers) {
         return(
-            <div>
-                Loading...
-            </div>
+            <AppShell align="start" className="py-8">
+                <PageCard>
+                    <PageHeader
+                        eyebrow="Testing route"
+                        title={`Page ${step} From URL params`}
+                        description="Loading users from the backend."
+                    />
+                    <SectionCard className="mt-6">Loading...</SectionCard>
+                </PageCard>
+            </AppShell>
         );
     }
 
     return (
-        <div className="flex flex-col gap-5 items-center text-4xl">
-            <header>
-                Page {step} From URL params
-            </header>
-            <div className="grid grid-cols-10 gap-2 justify-center">
-                {/* You can dynamically create a variable number of components*/}
-                {Array.from({ length: allUsers.length }).map(
-                    (_, i) => (
-                        <TestNamePlate
-                            name={allUsers[i]}
-                            background_color={colorPalette[i%colorPalette.length]}
-                            // React requires a key for generation like this. You cant access it. 
-                            // If you need the index, you have to pass it as a prop in the same way as name.
-                            key={i}
-                        />
-                    ),
-                )}
-            </div>
-        </div>
+        <AppShell align="start" className="py-8">
+            <PageCard>
+                <div className="flex flex-col gap-6">
+                    <PageHeader
+                        eyebrow="Testing route"
+                        title={`Page ${step} From URL params`}
+                        description="This page shows the database-backed user list returned by the test endpoint."
+                    />
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {allUsers.map((user, index) => (
+                            <GalleryCard
+                                key={user}
+                                title={user}
+                                tone={tones[index % tones.length]}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </PageCard>
+        </AppShell>
     );
 }

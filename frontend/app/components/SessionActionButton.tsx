@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Button } from "./ui";
 import { getCurrentSession, logout, type SessionUser } from "../../lib/auth";
 
 const SESSION_CHANGED_EVENT = "dcs-session-changed";
@@ -59,18 +60,13 @@ export default function SessionActionButton() {
         : "Logout"
       : "Login";
 
-  const buttonClassName = sessionUser
-    ? "border-red-400/60 bg-red-500/15 text-red-100 hover:border-red-300 hover:bg-red-500/25"
-    : "border-sky-400/60 bg-sky-500/15 text-sky-100 hover:border-sky-300 hover:bg-sky-500/25";
-
   return (
-    <button
-      type="button"
+    <Button
       onClick={handleClick}
       disabled={isLoading || isSubmitting}
-      className={`inline-flex items-center justify-center rounded-full border px-5 py-2.5 text-sm font-semibold shadow-lg shadow-black/20 backdrop-blur transition disabled:cursor-not-allowed disabled:opacity-60 ${buttonClassName}`}
+      variant={sessionUser ? "danger" : "primary"}
     >
       {buttonLabel}
-    </button>
+    </Button>
   );
 }
