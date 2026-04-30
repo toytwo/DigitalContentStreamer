@@ -4,6 +4,24 @@ export type SessionUser = {
   role: "viewer" | "creator" | "admin";
 };
 
+export type SignupRequest = {
+  email: string;
+  phone_number: string;
+  user_role: SessionUser["role"];
+  first_name: string;
+  last_name: string;
+  password: string;
+  password_confirmation: string;
+  region_name: string;
+  referral_method: string;
+  age?: number;
+  preferred_language?: string;
+  subscription_tier_id?: number;
+  display_name?: string;
+  profile_description?: string;
+  department?: string;
+};
+
 export type LoginRequest = {
   email: string;
   password: string;
@@ -38,6 +56,24 @@ export async function login(request: LoginRequest): Promise<SessionUser> {
   const data = await parseJson(response);
   if (!response.ok || !data?.success || !data.user) {
     throw new Error(data?.detail ?? "Invalid email or password");
+  }
+
+  return data.user;
+}
+
+export async function signup(request: SignupRequest): Promise<SessionUser> {
+  const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  const data = await parseJson(response);
+  if (!response.ok || !data?.success || !data.user) {
+    throw new Error(data?.detail ?? "Unable to create account");
   }
 
   return data.user;

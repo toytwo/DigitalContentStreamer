@@ -3,6 +3,8 @@ import type {
   HTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
 } from "react";
 
 type ClassNameValue = string | undefined;
@@ -177,6 +179,83 @@ export function Input({
   );
 }
 
+
+type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  label?: string;
+  hint?: string;
+  wrapperClassName?: string;
+  options: Array<{ value: string; label: string }>;
+};
+
+export function Select({
+  label,
+  hint,
+  wrapperClassName,
+  className,
+  id,
+  options,
+  children,
+  ...props
+}: SelectProps) {
+  const selectId = id ?? props.name;
+
+  return (
+    <div className={joinClasses("space-y-2", wrapperClassName)}>
+      {label ? (
+        <label className="block text-sm font-medium text-foreground" htmlFor={selectId}>
+          {label}
+        </label>
+      ) : null}
+      <select
+        id={selectId}
+        className={joinClasses(
+          "w-full rounded-2xl border border-white/10 bg-surface-strong/85 px-4 py-3 text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/25",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {hint ? <p className="text-xs text-muted">{hint}</p> : null}
+    </div>
+  );
+}
+
+
+type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string;
+  hint?: string;
+  wrapperClassName?: string;
+};
+
+export function Textarea({ label, hint, wrapperClassName, className, id, ...props }: TextareaProps) {
+  const textareaId = id ?? props.name;
+
+  return (
+    <div className={joinClasses("space-y-2", wrapperClassName)}>
+      {label ? (
+        <label className="block text-sm font-medium text-foreground" htmlFor={textareaId}>
+          {label}
+        </label>
+      ) : null}
+      <textarea
+        id={textareaId}
+        className={joinClasses(
+          "min-h-32 w-full rounded-2xl border border-white/10 bg-surface-strong/85 px-4 py-3 text-foreground outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/25",
+          className,
+        )}
+        {...props}
+      />
+      {hint ? <p className="text-xs text-muted">{hint}</p> : null}
+    </div>
+  );
+}
+
 type BadgeVariant = "default" | "accent" | "success" | "danger" | "muted";
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
@@ -213,6 +292,62 @@ export function Badge({ variant = "default", dot = false, className, children, .
       {dot ? <span className={joinClasses("inline-flex h-2.5 w-2.5 rounded-full", badgeDotStyles[variant])} /> : null}
       {children}
     </span>
+  );
+}
+
+
+type RadioCardOption = {
+  value: string;
+  label: string;
+  description: string;
+};
+
+type RadioCardGroupProps = {
+  name: string;
+  value: string;
+  options: RadioCardOption[];
+  onChange: (value: string) => void;
+  className?: string;
+};
+
+export function RadioCardGroup({
+  name,
+  value,
+  options,
+  onChange,
+  className,
+}: RadioCardGroupProps) {
+  return (
+    <div className={joinClasses("grid gap-3 md:grid-cols-3", className)}>
+      {options.map((option) => {
+        const isSelected = option.value === value;
+
+        return (
+          <label
+            key={option.value}
+            className={joinClasses(
+              "flex cursor-pointer flex-col gap-3 rounded-2xl border p-4 transition",
+              isSelected
+                ? "border-accent bg-accent/10 text-foreground"
+                : "border-white/10 bg-surface-strong/80 text-muted hover:border-white/20 hover:text-foreground",
+            )}
+          >
+            <span className="text-xs uppercase tracking-[0.35em] text-muted">{option.label}</span>
+            <span className="flex items-center justify-between gap-3 text-sm leading-6">
+              <span>{option.description}</span>
+              <input
+                name={name}
+                type="radio"
+                value={option.value}
+                checked={isSelected}
+                onChange={() => onChange(option.value)}
+                className="h-4 w-4 accent-sky-400"
+              />
+            </span>
+          </label>
+        );
+      })}
+    </div>
   );
 }
 

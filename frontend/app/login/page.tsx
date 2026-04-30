@@ -92,6 +92,12 @@ export default function LoginPage() {
         <SectionCard className="mt-6">
           Demo logins now come from the database-backed seed data, so use a real account email and its stored password.
         </SectionCard>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button type="button" variant="secondary" className="w-full" onClick={() => router.push("/signup")}>
+            Sign up
+          </Button>
+        </div>
       </PageCard>
     </AppShell>
   );
