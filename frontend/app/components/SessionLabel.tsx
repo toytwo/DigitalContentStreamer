@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { getCurrentSession, type SessionUser } from "../../lib/auth";
+import { Badge } from "./ui";
 
 const SESSION_CHANGED_EVENT = "dcs-session-changed";
 
@@ -49,17 +50,16 @@ export default function SessionLabel() {
   }, []);
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-slate-200 shadow-lg shadow-slate-950/30 backdrop-blur">
-      <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(74,222,128,0.85)]" />
+    <Badge variant={sessionUser ? "success" : "muted"} dot className="shadow-lg shadow-black/20 backdrop-blur">
       {isLoading ? (
-        <span className="text-slate-300">Checking session...</span>
+        <span>Checking session...</span>
       ) : sessionUser ? (
         <span>
-          Signed in as <span className="font-semibold text-white">{sessionUser.email}</span> · {formatRole(sessionUser.role)}
+          Signed in as <span className="font-semibold text-foreground">{sessionUser.email}</span> | {formatRole(sessionUser.role)} | {sessionUser.user_id}
         </span>
       ) : (
-        <span className="text-slate-300">Not signed in</span>
+        <span>Not signed in</span>
       )}
-    </div>
+    </Badge>
   );
 }

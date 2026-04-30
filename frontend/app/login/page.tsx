@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { AppShell, Badge, Button, Input, PageCard, PageHeader, SectionCard } from "../components/ui";
 import { getCurrentSession, login, type SessionUser } from "../../lib/auth";
 
 export default function LoginPage() {
@@ -43,64 +44,61 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#12213f_0%,#08111f_42%,#050913_100%)] px-4 py-10 text-slate-100">
-      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center justify-center">
-        <section className="w-full rounded-3xl border border-slate-700/60 bg-slate-950/80 p-8 shadow-2xl shadow-slate-950/60 backdrop-blur">
-          <div className="mb-8 space-y-2 text-center">
-            <p className="text-sm uppercase tracking-[0.35em] text-sky-400/80">DigitalContentStreamer</p>
-            <h1 className="text-3xl font-semibold text-white">Login</h1>
-            <p className="text-sm text-slate-400">Use your account email and password to continue.</p>
-          </div>
+    <AppShell>
+      <PageCard className="max-w-md">
+        <div className="mb-8 space-y-2 text-center">
+          <PageHeader
+            eyebrow="DigitalContentStreamer"
+            title="Login"
+            description="Use your account email and password to continue."
+            align="center"
+          />
+        </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-200" htmlFor="email">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
-                placeholder="name@example.com"
-              />
-            </div>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            label="Email"
+            placeholder="name@example.com"
+          />
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-200" htmlFor="password">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
-                placeholder="password"
-              />
-            </div>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            label="Password"
+            placeholder="password"
+          />
 
-            {errorMessage ? <p className="text-sm text-red-400">{errorMessage}</p> : null}
+          {errorMessage ? (
+            <Badge variant="danger" className="w-full justify-start rounded-2xl px-4 py-3 text-sm">
+              {errorMessage}
+            </Badge>
+          ) : null}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-2xl bg-sky-600 px-4 py-3 font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isSubmitting ? "Logging in..." : "Login"}
-            </button>
-          </form>
+          <Button type="submit" disabled={isSubmitting} className="w-full rounded-2xl py-3">
+            {isSubmitting ? "Logging in..." : "Login"}
+          </Button>
+        </form>
 
-          <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-400">
-            Demo logins now come from the database-backed seed data, so use a real account email and its stored password.
-          </div>
-        </section>
-      </div>
-    </main>
+        <SectionCard className="mt-6">
+          Demo logins now come from the database-backed seed data, so use a real account email and its stored password.
+        </SectionCard>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button type="button" variant="secondary" className="w-full" onClick={() => router.push("/signup")}>
+            Sign up
+          </Button>
+        </div>
+      </PageCard>
+    </AppShell>
   );
 }
