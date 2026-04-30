@@ -32,7 +32,14 @@ def login_endpoint(payload: LoginRequest, response: Response):
         path="/",
         max_age=60 * 60 * 8,
     )
-    return {"success": True, "user": {"email": session_user.email, "role": session_user.role}}
+    return {
+        "success": True,
+        "user": {
+            "user_id": session_user.user_id,
+            "email": session_user.email,
+            "role": session_user.role,
+        },
+    }
 
 
 @router.get("/me")
@@ -46,7 +53,14 @@ def current_session(
             detail="Not authenticated",
         )
 
-    return {"success": True, "user": {"email": session_user.email, "role": session_user.role}}
+    return {
+        "success": True,
+        "user": {
+            "user_id": session_user.user_id,
+            "email": session_user.email,
+            "role": session_user.role,
+        },
+    }
 
 
 @router.post("/logout")

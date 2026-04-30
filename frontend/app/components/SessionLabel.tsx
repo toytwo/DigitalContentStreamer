@@ -55,7 +55,7 @@ export default function SessionLabel() {
         <span>Checking session...</span>
       ) : sessionUser ? (
         <span>
-          Signed in as <span className="font-semibold text-foreground">{sessionUser.email}</span> · {formatRole(sessionUser.role)}
+          Signed in as <span className="font-semibold text-foreground">{sessionUser.email}</span> | {formatRole(sessionUser.role)} | {sessionUser.user_id}
         </span>
       ) : (
         <span>Not signed in</span>

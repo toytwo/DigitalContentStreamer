@@ -1,4 +1,5 @@
 export type SessionUser = {
+  user_id: number;
   email: string;
   role: "viewer" | "creator" | "admin";
 };

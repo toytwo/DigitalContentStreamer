@@ -9,7 +9,11 @@ def authenticate(email: str, password: str) -> tuple[str, SessionUser] | None:
     if user_record is None:
         return None
 
-    session_user = SessionUser(email=user_record["email"], role=user_record["user_role"])
+    session_user = SessionUser(
+        user_id=user_record["user_id"],
+        email=user_record["email"],
+        role=user_record["user_role"],
+    )
     session_id = create_session(session_user)
     return session_id, session_user
 
