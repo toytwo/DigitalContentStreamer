@@ -3,9 +3,10 @@ import shutil
 from pathlib import Path
 from typing import Any
 import os
-
 from fastapi import UploadFile
 from database.repositories import user_profile_repo 
+
+FILE_PATH_SUFFIXES = ["a","b"]
 
 def get_user_profile(user_id: int) -> dict:
     result = user_profile_repo.get_all_user_details(user_id)
@@ -38,10 +39,13 @@ def update_user_profile_image(user_id: int, image: UploadFile) -> str:
     dot_index = current_filepath.index(".")
     
     # Alternating suffix used to force cache miss on frontend and store old pfp for retrieval
-    if current_filepath == "DefaultProfileImage.png" or current_filepath[dot_index-1:dot_index] == "b":
-        suffix = "a"
+    suffix = current_filepath[dot_index-1:dot_index]
+    for i in range(len(FILE_PATH_SUFFIXES)):
+        if suffix == FILE_PATH_SUFFIXES[i]:
+            suffix = FILE_PATH_SUFFIXES[(i+1)%len(FILE_PATH_SUFFIXES)]
+            break
     else:
-        suffix = "b"
+        suffix = FILE_PATH_SUFFIXES[0]
     
     extension = os.path.splitext(image.filename)[1]
     
@@ -59,39 +63,25 @@ def update_user_profile_image(user_id: int, image: UploadFile) -> str:
 
 def update_user_profile(user_id: int, payload: dict[str, Any]) -> dict:
     normalized_payload: dict[str, Any] = {}
+    fields = {
+        "email":str, "phone_number":int, 
+        "first_name":str, "last_name":str, 
+        "display_name": str, "profile_description":str,
+        "password":str}
 
-    if "email" in payload:
-        email = payload["email"].strip()
-        if not email:
-            raise ValueError("Email is required")
-        normalized_payload["email"] = email
+    for field, cast_type in fields.items():
+        if field in payload:
+            value = payload[field]
 
-    if "phone_number" in payload:
-        normalized_payload["phone_number"] = int(payload["phone_number"])
+            if isinstance(value, str):
+                value = value.strip()
+                if not value:
+                    raise ValueError(f"{field} is required")
 
-    if "first_name" in payload:
-        first_name = payload["first_name"].strip()
-        if not first_name:
-            raise ValueError("First name is required")
-        normalized_payload["first_name"] = first_name
-
-    if "last_name" in payload:
-        last_name = payload["last_name"].strip()
-        if not last_name:
-            raise ValueError("Last name is required")
-        normalized_payload["last_name"] = last_name
-
-    if "display_name" in payload:
-        display_name = payload["display_name"].strip()
-        if not display_name:
-            raise ValueError("Display name is required")
-        normalized_payload["display_name"] = display_name
-
-    if "profile_description" in payload:
-        profile_description = payload["profile_description"].strip()
-        if not profile_description:
-            raise ValueError("Profile description is required")
-        normalized_payload["profile_description"] = profile_description
+            try:
+                normalized_payload[field] = cast_type(value)
+            except (ValueError, TypeError):
+                raise ValueError(f"Invalid value for {field}")
 
     result = user_profile_repo.update_user_profile(user_id, normalized_payload)
 
@@ -99,3 +89,12 @@ def update_user_profile(user_id: int, payload: dict[str, Any]) -> dict:
         raise ValueError(f"User with id {user_id} not found")
 
     return result
+
+def delete_user(user_id: int) -> None:
+    user_profile_repo.delete_user(user_id)
+
+    for i in range(len(FILE_PATH_SUFFIXES)):
+        file_path_png = Path(f"database/images/profiles/{str(user_id)+FILE_PATH_SUFFIXES[i]+".png"}")
+        file_path_jpg = Path(f"database/images/profiles/{str(user_id)+FILE_PATH_SUFFIXES[i]+".jpg"}")
+        file_path_png.unlink(missing_ok=True)
+        file_path_jpg.unlink(missing_ok=True)

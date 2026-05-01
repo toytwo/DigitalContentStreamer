@@ -80,4 +80,12 @@ BEGIN
     WHERE user_id = input_user_id;
 END$$
 
+CREATE PROCEDURE DeleteUser(
+    input_user_id INT
+)
+BEGIN
+    DELETE FROM User
+    WHERE user_id = input_user_id;
+END$$
+
 DELIMITER ;

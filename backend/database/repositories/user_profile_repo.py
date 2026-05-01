@@ -12,6 +12,9 @@ def get_user_profile_image(user_id: int) -> dict:
 def update_user_profile_image(user_id: int, filepath: str) -> None:
     return _update([user_id, filepath],"UpdateUserProfileImage")
 
+def delete_user(user_id: int) -> None:
+    return _update([user_id],"DeleteUser")
+
 def update_user_profile(user_id: int, updates: dict[str, Any]) -> dict[str, Any]:
     if not updates:
         raise ValueError("No profile fields provided for update")
@@ -23,6 +26,7 @@ def update_user_profile(user_id: int, updates: dict[str, Any]) -> dict[str, Any]
         "last_name",
         "display_name",
         "profile_description",
+        "password"
     }
 
     filtered_updates = {key: value for key, value in updates.items() if key in allowed_fields}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+import { getCurrentSession, logout, type SessionUser } from "../../../lib/auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -22,7 +22,7 @@ type UserProfile = {
     profile_image_filepath: string,
 }
 
-type TabName = 'contact' | 'personal';
+type TabName = 'contact' | 'personal' | 'manage';
 
 export default function Page(){
     const router = useRouter();
@@ -33,6 +33,10 @@ export default function Page(){
     const [editValues, setEditValues] = useState<Partial<UserProfile>>({});
     const [uploadingImage, setUploadingImage] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     useEffect(() => {
         getCurrentSession().then((currentUser) => {
@@ -136,6 +140,30 @@ export default function Page(){
         }
     };
 
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        setDeleteError(null);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/user_profile/delete`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data?.success) {
+                throw new Error(data?.detail ?? "Failed to delete account");
+            }
+            
+            logout()
+            
+            router.replace('/login');
+        } catch (error) {
+            setDeleteError(error instanceof Error ? error.message : "Failed to delete account");
+            setIsDeleting(false);
+        }
+    };
+
     if (!profile) {
         return (
             <main className="bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16)_0%,rgba(11,18,32,0.94)_42%,rgba(5,9,19,1)_100%)] px-4 py-4 text-foreground">
@@ -149,12 +177,12 @@ export default function Page(){
     const tabs: { id: TabName; label: string }[] = [
         { id: 'contact', label: 'Contact' },
         { id: 'personal', label: 'Personal Info' },
+        { id: 'manage', label: 'Manage' },
     ];
 
     return(
         <main className="bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16)_0%,rgba(11,18,32,0.94)_42%,rgba(5,9,19,1)_100%)] px-4 py-4 text-foreground">
             <div className="mx-auto w-full max-w-4xl flex flex-col">
-                {/* Profile Header */}
                 <div className="flex gap-8 items-start pb-8 border-b border-white/10 flex-shrink-0">
                     <ProfileImageUpload 
                         imageUrl={`${API_BASE_URL}/api/images/${profile.profile_image_filepath ?? "profiles/DefaultProfileImage.png"}`}
@@ -192,7 +220,6 @@ export default function Page(){
                     </div>
                 ) : null}
 
-                {/* Tab Navigation */}
                 <div className="flex gap-0 border-b border-white/10 flex-shrink-0">
                     {tabs.map((tab) => (
                         <button
@@ -209,7 +236,6 @@ export default function Page(){
                     ))}
                 </div>
 
-                {/* Tab Content - Scrollable */}
                 <div className="overflow-y-auto max-h-[calc(100vh-22rem)]">
                     <div className="animate-fadeIn py-6 pr-4">
                         {activeTab === 'contact' && (
@@ -278,9 +304,50 @@ export default function Page(){
                                 />
                             </div>
                         )}
+                        {activeTab === 'manage' && (
+                            <div className="flex flex-col gap-6">
+                                <PasswordChangeSection 
+                                    onError={setSaveError}
+                                    apiBaseUrl={API_BASE_URL}
+                                />
+
+                                <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+                                    <h3 className="text-lg font-medium text-white mb-2">Delete Account</h3>
+                                    <p className="text-sm text-white/60 mb-4">
+                                        Permanently delete your account and all associated data. This action cannot be undone.
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            setShowDeleteModal(true);
+                                            setDeleteConfirmation("");
+                                            setDeleteError(null);
+                                        }}
+                                        className="px-4 py-2 bg-rose-500/20 text-rose-300 border border-rose-300/30 rounded hover:bg-rose-500/30 transition text-sm font-medium"
+                                    >
+                                        Delete Account
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {showDeleteModal && (
+                <DeleteAccountModal
+                    displayName={profile.display_name}
+                    onConfirm={handleDeleteAccount}
+                    onCancel={() => {
+                        setShowDeleteModal(false);
+                        setDeleteConfirmation("");
+                        setDeleteError(null);
+                    }}
+                    confirmationText={deleteConfirmation}
+                    onConfirmationChange={setDeleteConfirmation}
+                    isDeleting={isDeleting}
+                    error={deleteError}
+                />
+            )}
         </main>
     );
 }
@@ -487,6 +554,275 @@ function EditableField({
                     </button>
                 </div>
             )}
+        </div>
+    );
+}
+
+interface PasswordChangeSectionProps {
+    onError: (error: string | null) => void;
+    apiBaseUrl: string;
+}
+
+function PasswordChangeSection({ onError, apiBaseUrl }: PasswordChangeSectionProps) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
+        setError(null);
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            setError("All fields are required");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setError("New passwords do not match");
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            setError("New password must be at least 8 characters");
+            return;
+        }
+
+        if (currentPassword === newPassword) {
+            setError("New password must be different from current password");
+            return;
+        }
+
+        setIsSaving(true);
+
+        try {
+            const profileResponse = await fetch(`${apiBaseUrl}/user_profile/details`, {
+                credentials: "include"
+            });
+            const profileData = await profileResponse.json();
+            
+            if (!profileResponse.ok || !profileData?.payload) {
+                throw new Error("Failed to verify password");
+            }
+
+            if (currentPassword !== profileData.payload.password) {
+                setError("Current password is incorrect");
+                setIsSaving(false);
+                return;
+            }
+
+            const response = await fetch(`${apiBaseUrl}/user_profile/details`, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    password: newPassword,
+                }),
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data?.success) {
+                throw new Error(data?.detail ?? "Failed to change password");
+            }
+
+            setSuccess(true);
+            setIsEditing(false);
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+            onError(null);
+            
+            setTimeout(() => setSuccess(false), 3000);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "Failed to change password";
+            setError(errorMsg);
+            onError(errorMsg);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setError(null);
+        setSuccess(false);
+    };
+
+    return (
+        <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-white">Change Password</h3>
+                {!isEditing && (
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        className="text-sm text-sky-400 hover:text-sky-300 transition font-medium"
+                    >
+                        Update Password
+                    </button>
+                )}
+            </div>
+
+            {success && (
+                <div className="mb-4 rounded-lg border border-green-300/30 bg-green-500/10 px-4 py-3 text-sm text-green-200">
+                    ✓ Password changed successfully
+                </div>
+            )}
+
+            {error && (
+                <div className="mb-4 rounded-lg border border-rose-300/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                    {error}
+                </div>
+            )}
+
+            {isEditing && (
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-white/80 mb-2">
+                            Current Password
+                        </label>
+                        <input
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            placeholder="Enter your current password"
+                            className="w-full bg-white/10 border border-white/20 rounded px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-sky-400"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-white/80 mb-2">
+                            New Password
+                        </label>
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="Enter new password"
+                            className="w-full bg-white/10 border border-white/20 rounded px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-sky-400"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-white/80 mb-2">
+                            Confirm New Password
+                        </label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter new password"
+                            className="w-full bg-white/10 border border-white/20 rounded px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-sky-400"
+                        />
+                    </div>
+
+                    <p className="text-xs text-white/50">Password must be at least 8 characters</p>
+
+                    <div className="flex gap-2 pt-2">
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="px-4 py-2 text-sm bg-sky-500 text-white rounded hover:bg-sky-600 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                        >
+                            {isSaving ? "Saving..." : "Save Password"}
+                        </button>
+                        <button
+                            onClick={handleCancel}
+                            disabled={isSaving}
+                            className="px-4 py-2 text-sm bg-white/10 text-white rounded hover:bg-white/20 transition disabled:opacity-50 font-medium"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {!isEditing && !success && (
+                <p className="text-sm text-white/60">
+                    Keep your account secure by updating your password regularly.
+                </p>
+            )}
+        </div>
+    );
+}
+
+interface DeleteAccountModalProps {
+    displayName: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+    confirmationText: string;
+    onConfirmationChange: (text: string) => void;
+    isDeleting: boolean;
+    error: string | null;
+}
+
+function DeleteAccountModal({
+    displayName,
+    onConfirm,
+    onCancel,
+    confirmationText,
+    onConfirmationChange,
+    isDeleting,
+    error
+}: DeleteAccountModalProps) {
+    const requiredText = `DELETE ${displayName}`;
+    const isConfirmed = confirmationText === requiredText;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-900 border border-white/10 rounded-lg max-w-md w-full p-6">
+                <h2 className="text-xl font-semibold text-white mb-2">Delete Account</h2>
+                <p className="text-sm text-white/60 mb-4">
+                    This action cannot be undone. All your data will be permanently deleted.
+                </p>
+
+                {error && (
+                    <div className="mb-4 rounded-lg border border-rose-300/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                        {error}
+                    </div>
+                )}
+
+                <div className="mb-6 p-4 bg-rose-500/10 border border-rose-300/30 rounded-lg">
+                    <p className="text-xs font-medium text-white/80 mb-3">
+                        To confirm, type the following exactly:
+                    </p>
+                    <p className="font-mono text-sm text-rose-300 mb-3">
+                        {requiredText}
+                    </p>
+                    <input
+                        type="text"
+                        value={confirmationText}
+                        onChange={(e) => onConfirmationChange(e.target.value)}
+                        placeholder="Type the text above"
+                        className="w-full bg-white/10 border border-white/20 rounded px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-sky-400 font-mono"
+                        disabled={isDeleting}
+                        autoFocus
+                    />
+                </div>
+
+                <div className="flex gap-3">
+                    <button
+                        onClick={onConfirm}
+                        disabled={!isConfirmed || isDeleting}
+                        className="flex-1 px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                    >
+                        {isDeleting ? "Deleting..." : "Confirm Delete"}
+                    </button>
+                    <button
+                        onClick={onCancel}
+                        disabled={isDeleting}
+                        className="flex-1 px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20 transition disabled:opacity-50 font-medium text-sm"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
