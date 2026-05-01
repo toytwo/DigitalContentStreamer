@@ -20,7 +20,7 @@ def run_sql_file(filename: str):
 
 
 if __name__ == "__main__":
-    seeds = ["DDL","StoredProcedures","Triggers","DML"]
+    seeds = ["DDL","StoredProcedures","Triggers","DML","Views"]
 
     for seed in seeds:
         print("Seeding "+seed+"...")
