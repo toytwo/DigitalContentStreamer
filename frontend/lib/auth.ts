@@ -55,7 +55,14 @@ export async function login(request: LoginRequest): Promise<SessionUser> {
 
   const data = await parseJson(response);
   if (!response.ok || !data?.success || !data.user) {
-    throw new Error(data?.detail ?? "Invalid email or password");
+    const detail = data?.detail;
+    const message =
+      detail == null
+        ? "Invalid email or password"
+        : typeof detail === "string"
+        ? detail
+        : JSON.stringify(detail);
+    throw new Error(message);
   }
 
   return data.user;
@@ -73,7 +80,14 @@ export async function signup(request: SignupRequest): Promise<SessionUser> {
 
   const data = await parseJson(response);
   if (!response.ok || !data?.success || !data.user) {
-    throw new Error(data?.detail ?? "Unable to create account");
+    const detail = data?.detail;
+    const message =
+      detail == null
+        ? "Unable to create account"
+        : typeof detail === "string"
+        ? detail
+        : JSON.stringify(detail);
+    throw new Error(message);
   }
 
   return data.user;

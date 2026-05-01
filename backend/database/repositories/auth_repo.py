@@ -57,8 +57,11 @@ def create_signup_user(payload: dict[str, Any]) -> dict[str, Any]:
                         password,
                         creation_date,
                         region_id,
-                        referral_method
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        referral_method,
+                        display_name,
+                        profile_description,
+                        profile_image_filepath
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         payload["email"],
@@ -70,6 +73,9 @@ def create_signup_user(payload: dict[str, Any]) -> dict[str, Any]:
                         payload["creation_date"],
                         payload["region_id"],
                         payload["referral_method"],
+                        payload["display_name"],
+                        payload["profile_description"],
+                        payload["profile_image_filepath"],
                     ),
                 )
 
@@ -133,18 +139,12 @@ def create_signup_user(payload: dict[str, Any]) -> dict[str, Any]:
                         """
                         INSERT INTO Creator (
                             user_id,
-                            display_name,
-                            profile_description,
-                            profile_image_filepath,
                             follow_count,
                             view_count
-                        ) VALUES (%s, %s, %s, %s, %s, %s)
+                        ) VALUES (%s, %s, %s)
                         """,
                         (
                             user_id,
-                            payload["display_name"],
-                            payload["profile_description"],
-                            payload["profile_image_filepath"],
                             payload["follow_count"],
                             payload["view_count"],
                         ),

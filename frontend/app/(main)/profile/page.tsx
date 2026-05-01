@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 type UserProfile = {
     user_id: number,
@@ -22,26 +25,31 @@ type UserProfile = {
 type TabName = 'contact' | 'personal';
 
 export default function Page(){
+    const router = useRouter();
     const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [activeTab, setActiveTab] = useState<TabName>('contact');
     const [editingField, setEditingField] = useState<string | null>(null);
     const [editValues, setEditValues] = useState<Partial<UserProfile>>({});
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
 
     useEffect(() => {
-        getCurrentSession()
-            .then((currentUser) => {
-                setSessionUser(currentUser);
-            });
-    }, []);
+        getCurrentSession().then((currentUser) => {
+            if (!currentUser) {
+                router.replace('/login');
+                return;
+            }
+            setSessionUser(currentUser);
+        });
+    }, [router]);
 
     useEffect(() => {
         if (!sessionUser) return;
         
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/user_profile/details`, {
+                const response = await fetch(`${API_BASE_URL}/user_profile/details`, {
                     credentials: "include"
                 });
                 const data = await response.json();
@@ -60,13 +68,38 @@ export default function Page(){
     };
 
     const handleSaveEdit = async (field: string) => {
-        console.log(`Saving ${field}:`, editValues[field as keyof UserProfile]);
-        setEditingField(null);
-        if (profile) {
-            setProfile({
-                ...profile,
-                [field]: editValues[field as keyof UserProfile]
+        if (!profile) {
+            return;
+        }
+
+        try {
+            setSaveError(null);
+
+            const value = editValues[field as keyof UserProfile];
+            const updatePayload: Record<string, string> = {
+                [field]: typeof value === "number" ? value.toString() : String(value ?? ""),
+            };
+
+            const response = await fetch(`${API_BASE_URL}/user_profile/details`, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updatePayload),
             });
+
+            const data = await response.json();
+            if (!response.ok || !data?.success || !data?.payload) {
+                const detail = data?.detail;
+                throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail ?? "Unable to save changes"));
+            }
+
+            setProfile(data.payload);
+            setEditValues(data.payload);
+            setEditingField(null);
+        } catch (error) {
+            setSaveError(error instanceof Error ? error.message : "Unable to save changes");
         }
     };
 
@@ -83,7 +116,7 @@ export default function Page(){
             const formData = new FormData();
             formData.append('file', file);
             
-            const response = await fetch(`http://localhost:8000/user_profile/upload-image`, {
+            const response = await fetch(`${API_BASE_URL}/user_profile/upload-image`, {
                 method: 'POST',
                 credentials: "include",
                 body: formData
@@ -124,7 +157,7 @@ export default function Page(){
                 {/* Profile Header */}
                 <div className="flex gap-8 items-start pb-8 border-b border-white/10 flex-shrink-0">
                     <ProfileImageUpload 
-                        imageUrl={`http://localhost:8000/api/images/${profile.profile_image_filepath ?? "profiles/DefaultProfileImage.png"}`}
+                        imageUrl={`${API_BASE_URL}/api/images/${profile.profile_image_filepath ?? "profiles/DefaultProfileImage.png"}`}
                         onUpload={handleImageUpload}
                         isUploading={uploadingImage}
                     />
@@ -152,6 +185,12 @@ export default function Page(){
                         </div>
                     </div>
                 </div>
+
+                {saveError ? (
+                    <div className="mt-4 rounded-lg border border-rose-300/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                        {saveError}
+                    </div>
+                ) : null}
 
                 {/* Tab Navigation */}
                 <div className="flex gap-0 border-b border-white/10 flex-shrink-0">

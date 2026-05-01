@@ -134,6 +134,7 @@ export default function SignupPage() {
         user_role: userRole,
         first_name: firstName,
         last_name: lastName,
+        display_name: displayName,
         password,
         password_confirmation: passwordConfirmation,
         region_name: regionName,
@@ -147,7 +148,6 @@ export default function SignupPage() {
           : {}),
         ...(userRole === "creator"
           ? {
-              display_name: displayName,
               profile_description: profileDescription,
             }
           : {}),
@@ -218,7 +218,19 @@ export default function SignupPage() {
               />
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-5 md:grid-cols-3">
+              <Input
+                id="displayName"
+                name="displayName"
+                type="text"
+                autoComplete="nickname"
+                value={displayName}
+                onChange={(event) => setDisplayName(event.target.value)}
+                label="Display name"
+                placeholder="MiraCreates"
+                required
+              />
+
               <Input
                 id="firstName"
                 name="firstName"
@@ -352,18 +364,7 @@ export default function SignupPage() {
                 <Badge variant="accent">Creates Creator profile</Badge>
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2">
-                <Input
-                  id="displayName"
-                  name="displayName"
-                  type="text"
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  label="Display name"
-                  placeholder="MiraCreates"
-                  required={userRole === "creator"}
-                />
-
+              <div className="grid gap-5 md:grid-cols-1">
                 <div className="rounded-2xl border border-white/10 bg-surface-strong/85 p-4 text-sm leading-7 text-muted">
                   Profile image filepath defaults to <span className="text-foreground">default/image/filepath.png</span>, and counts begin at zero.
                 </div>
