@@ -20,7 +20,7 @@ CREATE TABLE User (
     region_id INT NOT NULL,
     referral_method VARCHAR(30) NOT NULL,
     display_name VARCHAR(255) NOT NULL UNIQUE,
-    profile_description VARCHAR(1000) NOT NULL,
+    profile_description VARCHAR(1000) NOT NULL DEFAULT "Profile Description",
     profile_image_filepath VARCHAR(255) NOT NULL DEFAULT "profiles/DefaultProfileImage.png",
     CHECK (referral_method IN ('online search', 'word of mouth', 'advertisement', 'promotion', 'online platform', 'prefer not to say')),
     PRIMARY KEY (user_id),
