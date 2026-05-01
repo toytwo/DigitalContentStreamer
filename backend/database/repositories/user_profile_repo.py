@@ -1,16 +1,16 @@
 from __future__ import annotations
-
 from typing import Any
-
 from database.connection import get_db_connection
-from database.repositories.template_repo import _fetch_one
+from database.repositories.template_repo import _fetch_one, _update
 
-def get_all_user_details(user_id: int)->dict:
+def get_all_user_details(user_id: int) -> dict:
     return _fetch_one([user_id],"GetAllUserDetails")
 
-def get_user_profile_image(user_id: int)->dict:
+def get_user_profile_image(user_id: int) -> dict:
     return _fetch_one([user_id],"GetUserProfileImage")
 
+def update_user_profile_image(user_id: int, filepath: str) -> None:
+    return _update([user_id, filepath],"UpdateUserProfileImage")
 
 def update_user_profile(user_id: int, updates: dict[str, Any]) -> dict[str, Any]:
     if not updates:

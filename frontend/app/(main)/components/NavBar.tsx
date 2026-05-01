@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+import { usePathname } from "next/navigation";
 
 export function NavBar(){
     const [profileImageUrl, setProfileImageUrl] = useState<string>("profiles/DefaultProfileImage.png");
     const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+    const pathname = usePathname();
     
     useEffect(() => {
         getCurrentSession()
@@ -47,12 +49,14 @@ export function NavBar(){
                     DigitalContentStreamer
                 </Link>
             </div>
+            {sessionUser && pathname !== "/profile" &&
             <div className="ml-auto">
                 <Link 
                     className="rounded-full border border-white/10 bg-white/3 hover:bg-white/5 hover:text-sky-300 px-3 py-1 gap-2 flex flex-row items-center"
                     href={"/profile"}
                 >
                     Profile
+                    
                     <img 
                         src={`http://localhost:8000/api/images/${profileImageUrl}`} 
                         alt="Profile"
@@ -60,6 +64,7 @@ export function NavBar(){
                     />
                 </Link>
             </div>
+            }
         </nav>
         </div>
     );

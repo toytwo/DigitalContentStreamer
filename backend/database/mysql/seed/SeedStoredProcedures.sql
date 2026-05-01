@@ -70,4 +70,14 @@ BEGIN
 
 END$$
 
+CREATE PROCEDURE UpdateUserProfileImage(
+    input_user_id INT,
+    input_image_filepath TEXT
+)
+BEGIN
+    UPDATE User
+    SET profile_image_filepath = input_image_filepath
+    WHERE user_id = input_user_id;
+END$$
+
 DELIMITER ;

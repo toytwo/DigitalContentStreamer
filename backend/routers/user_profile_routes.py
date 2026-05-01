@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from pydantic import BaseModel, EmailStr, Field
 from auth.dependencies import require_authenticated_user
-from services.user_profile_service import get_user_profile, get_user_profile_image, update_user_profile
+from services.user_profile_service import get_user_profile, get_user_profile_image, update_user_profile, update_user_profile_image
 
 router = APIRouter()
 
@@ -93,3 +93,21 @@ def update_user_profile_endpoint(payload: UpdateUserProfileRequest, user: dict[s
         ) from error
 
     return {"success": True, "payload": result}
+
+@router.post("/upload-image")
+def update_user_profile_image_endpoint(file: UploadFile = File(...), user: dict[str, str | int] = Depends(require_authenticated_user)):
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+    
+    try:
+        relative_path = update_user_profile_image(user["user_id"], file)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to store image: {e}"
+        )
+    return {"success":True,"payload":{"filepath":relative_path}}

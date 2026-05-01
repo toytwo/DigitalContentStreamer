@@ -125,9 +125,9 @@ export default function Page(){
             const data = await response.json();
             if (data.success && profile) {
                 setProfile({
-                    ...profile,
-                    profile_image_filepath: data.filepath
-                });
+                ...profile,
+                profile_image_filepath: `${data.payload.filepath}?t=${Date.now()}`
+            });
             }
         } catch (error) {
             console.error("Failed to upload image:", error);

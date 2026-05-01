@@ -1,3 +1,5 @@
+from typing import Any
+
 from database.connection import get_db_connection
 
 def _fetch_one(parameters: list, procedure_name: str) -> dict:
@@ -37,3 +39,14 @@ def _fetch_all(parameters: list, procedure_name: str) -> dict:
             return results
 
         return None
+
+def _update(parameters: list[Any], procedure_name: str) -> None:
+    with get_db_connection() as conn:
+        with conn.cursor() as cursor:
+            try:
+                cursor.callproc(procedure_name, parameters)
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                print(f"Transaction failed: {e}")
+                raise e
