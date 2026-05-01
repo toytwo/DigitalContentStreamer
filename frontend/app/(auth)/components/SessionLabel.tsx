@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { getCurrentSession, type SessionUser } from "../../lib/auth";
-import { Badge } from "./ui";
+import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+import { Badge } from "../../components/ui";
 
 const SESSION_CHANGED_EVENT = "dcs-session-changed";
 

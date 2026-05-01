@@ -1,6 +1,6 @@
-import { AppShell, PageCard, PageHeader } from "./components/ui";
-import SessionActionButton from "./components/SessionActionButton";
-import SessionLabel from "./components/SessionLabel";
+import { AppShell, PageCard, PageHeader } from "../../components/ui";
+import SessionActionButton from "../../(auth)/components/SessionActionButton";
+import SessionLabel from "../../(auth)/components/SessionLabel";
 
 export default function Home() {
   return (

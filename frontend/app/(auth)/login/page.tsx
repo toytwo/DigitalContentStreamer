@@ -3,8 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { AppShell, Badge, Button, Input, PageCard, PageHeader, SectionCard } from "../components/ui";
-import { getCurrentSession, login, type SessionUser } from "../../lib/auth";
+import { AppShell, Badge, Button, Input, PageCard, PageHeader, SectionCard } from "../../components/ui";
+import { getCurrentSession, login, type SessionUser } from "../../../lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();

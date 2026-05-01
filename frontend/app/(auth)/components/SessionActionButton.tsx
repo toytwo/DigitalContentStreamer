@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "./ui";
-import { getCurrentSession, logout, type SessionUser } from "../../lib/auth";
+import { Button } from "../../components/ui";
+import { getCurrentSession, logout, type SessionUser } from "../../../lib/auth";
 
 const SESSION_CHANGED_EVENT = "dcs-session-changed";
 

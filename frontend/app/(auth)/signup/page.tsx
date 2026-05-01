@@ -14,8 +14,8 @@ import {
   SectionCard,
   Select,
   Textarea,
-} from "../components/ui";
-import { getCurrentSession, signup, type SessionUser, type SignupRequest } from "../../lib/auth";
+} from "../../components/ui";
+import { getCurrentSession, signup, type SessionUser, type SignupRequest } from "../../../lib/auth";
 
 const ROLE_OPTIONS = [
   {

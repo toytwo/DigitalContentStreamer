@@ -1,5 +1,3 @@
-USE digitalcontentstreamer;
-
 INSERT INTO Region (region_id, name) VALUES
 (1, 'United States'),
 (2, 'Canada'),
@@ -21,73 +19,81 @@ INSERT INTO SubscriptionPriceHistory (subscription_price_id, tier_id, from_price
 (5, 2, 12.00, 13.00, '2025-01-01', '2025-12-31'),
 (6, 3, 18.00, 20.00, '2025-01-01', '2025-12-31');
 
-INSERT INTO User (user_id, email, phone_number, user_role, first_name, last_name, password, creation_date, region_id, referral_method) VALUES
-(1, 'adrian.holt@example.com', 555100101, 'admin', 'Adrian', 'Holt', 'pw_admin_01', '2024-01-10', 1, 'online search'),
-(2, 'bianca.reed@example.com', 555100102, 'admin', 'Bianca', 'Reed', 'pw_admin_02', '2024-02-14', 2, 'advertisement'),
-(3, 'caleb.price@example.com', 555100103, 'admin', 'Caleb', 'Price', 'pw_admin_03', '2024-03-08', 3, 'promotion'),
-(4, 'diana.cross@example.com', 555100104, 'admin', 'Diana', 'Cross', 'pw_admin_04', '2024-04-19', 1, 'word of mouth'),
-(5, 'ethan.snow@example.com', 555100105, 'admin', 'Ethan', 'Snow', 'pw_admin_05', '2024-05-22', 4, 'online platform'),
+INSERT INTO User (
+    user_id, email, phone_number, user_role,
+    first_name, last_name, password, creation_date,
+    region_id, referral_method,
+    display_name, profile_description
+) VALUES
+(1,'adrian.holt@example.com',555100101,'admin','Adrian','Holt','pw_admin_01','2024-01-10',1,'online search','AdrianH','Platform administrator'),
+(2,'bianca.reed@example.com',555100102,'admin','Bianca','Reed','pw_admin_02','2024-02-14',2,'advertisement','BiancaR','Marketing admin'),
+(3,'caleb.price@example.com',555100103,'admin','Caleb','Price','pw_admin_03','2024-03-08',3,'promotion','CalebP','Management admin'),
+(4,'diana.cross@example.com',555100104,'admin','Diana','Cross','pw_admin_04','2024-04-19',1,'word of mouth','DianaC','Development admin'),
+(5,'ethan.snow@example.com',555100105,'admin','Ethan','Snow','pw_admin_05','2024-05-22',4,'online platform','EthanS','Infrastructure admin'),
+(6,'mira.chen@example.com',555100106,'creator','Mira','Chen','pw_creator_01','2024-06-01',5,'online search','MiraCreates','Travel and documentary creator'),
+(7,'noah.bennett@example.com',555100107,'creator','Noah','Bennett','pw_creator_02','2024-06-05',1,'word of mouth','NoahNarrates','Podcast and interview creator'),
+(8,'priya.kapoor@example.com',555100108,'creator','Priya','Kapoor','pw_creator_03','2024-06-09',2,'advertisement','PriyaPlays','Music-focused creator'),
+(9,'leo.fischer@example.com',555100109,'creator','Leo','Fischer','pw_creator_04','2024-06-13',4,'online platform','LeoLens','Short film creator'),
+(10,'hana.mori@example.com',555100110,'creator','Hana','Mori','pw_creator_05','2024-06-17',5,'promotion','HanaStudio','Animation creator'),
+(11,'aarav.patel@example.com',555100111,'viewer','Aarav','Patel','pw_viewer_01','2024-07-01',1,'online search','AaravP','Viewer profile'),
+(12,'amelia.scott@example.com',555100112,'viewer','Amelia','Scott','pw_viewer_02','2024-07-02',2,'word of mouth','AmeliaS','Viewer profile'),
+(13,'ben.turner@example.com',555100113,'viewer','Ben','Turner','pw_viewer_03','2024-07-03',3,'advertisement','BenT','Viewer profile'),
+(14,'clara.nguyen@example.com',555100114,'viewer','Clara','Nguyen','pw_viewer_04','2024-07-04',1,'promotion','ClaraN','Viewer profile'),
+(15,'daniel.kim@example.com',555100115,'viewer','Daniel','Kim','pw_viewer_05','2024-07-05',5,'online platform','DanielK','Viewer profile'),
+(16,'elena.ross@example.com',555100116,'viewer','Elena','Ross','pw_viewer_06','2024-07-06',2,'prefer not to say','ElenaR','Viewer profile'),
+(17,'felix.ward@example.com',555100117,'viewer','Felix','Ward','pw_viewer_07','2024-07-07',4,'online search','FelixW','Viewer profile'),
+(18,'grace.hughes@example.com',555100118,'viewer','Grace','Hughes','pw_viewer_08','2024-07-08',1,'advertisement','GraceH','Viewer profile'),
+(19,'henry.long@example.com',555100119,'viewer','Henry','Long','pw_viewer_09','2024-07-09',3,'word of mouth','HenryL','Viewer profile'),
+(20,'ivy.brooks@example.com',555100120,'viewer','Ivy','Brooks','pw_viewer_10','2024-07-10',6,'promotion','IvyB','Viewer profile'),
+(21,'jackson.lee@example.com',555100121,'viewer','Jackson','Lee','pw_viewer_11','2024-07-11',1,'online search','JacksonL','Viewer profile'),
+(22,'kiara.adams@example.com',555100122,'viewer','Kiara','Adams','pw_viewer_12','2024-07-12',2,'online platform','KiaraA','Viewer profile'),
+(23,'liam.carter@example.com',555100123,'viewer','Liam','Carter','pw_viewer_13','2024-07-13',4,'advertisement','LiamC','Viewer profile'),
+(24,'maya.hall@example.com',555100124,'viewer','Maya','Hall','pw_viewer_14','2024-07-14',5,'word of mouth','MayaH','Viewer profile'),
+(25,'nora.wright@example.com',555100125,'viewer','Nora','Wright','pw_viewer_15','2024-07-15',3,'online search','NoraW','Viewer profile'),
+(26,'owen.mitchell@example.com',555100126,'viewer','Owen','Mitchell','pw_viewer_16','2024-07-16',6,'promotion','OwenM','Viewer profile'),
+(27,'paige.wood@example.com',555100127,'viewer','Paige','Wood','pw_viewer_17','2024-07-17',1,'advertisement','PaigeW','Viewer profile'),
+(28,'quentin.bell@example.com',555100128,'viewer','Quentin','Bell','pw_viewer_18','2024-07-18',2,'online platform','QuentinB','Viewer profile'),
+(29,'ruby.cooper@example.com',555100129,'viewer','Ruby','Cooper','pw_viewer_19','2024-07-19',5,'prefer not to say','RubyC','Viewer profile'),
+(30,'samuel.bailey@example.com',555100130,'viewer','Samuel','Bailey','pw_viewer_20','2024-07-20',4,'word of mouth','SamuelB','Viewer profile'),
+(31,'tessa.murphy@example.com',555100131,'viewer','Tessa','Murphy','pw_viewer_21','2024-07-21',1,'online search','TessaM','Viewer profile'),
+(32,'umar.ali@example.com',555100132,'viewer','Umar','Ali','pw_viewer_22','2024-07-22',2,'advertisement','UmarA','Viewer profile'),
+(33,'violet.rivera@example.com',555100133,'viewer','Violet','Rivera','pw_viewer_23','2024-07-23',3,'promotion','VioletR','Viewer profile'),
+(34,'william.gray@example.com',555100134,'viewer','William','Gray','pw_viewer_24','2024-07-24',6,'online platform','WilliamG','Viewer profile'),
+(35,'ximena.flores@example.com',555100135,'viewer','Ximena','Flores','pw_viewer_25','2024-07-25',5,'word of mouth','XimenaF','Viewer profile'),
+(36,'yusuf.khan@example.com',555100136,'viewer','Yusuf','Khan','pw_viewer_26','2024-07-26',4,'online search','YusufK','Viewer profile'),
+(37,'zoe.peterson@example.com',555100137,'viewer','Zoe','Peterson','pw_viewer_27','2024-07-27',1,'advertisement','ZoeP','Viewer profile'),
+(38,'alexis.moore@example.com',555100138,'viewer','Alexis','Moore','pw_viewer_28','2024-07-28',2,'promotion','AlexisM','Viewer profile'),
+(39,'brandon.james@example.com',555100139,'viewer','Brandon','James','pw_viewer_29','2024-07-29',3,'online platform','BrandonJ','Viewer profile'),
+(40,'celeste.diaz@example.com',555100140,'viewer','Celeste','Diaz','pw_viewer_30','2024-07-30',6,'word of mouth','CelesteD','Viewer profile'),
+(41,'declan.evans@example.com',555100141,'viewer','Declan','Evans','pw_viewer_31','2024-07-31',5,'online search','DeclanE','Viewer profile'),
+(42,'esme.collins@example.com',555100142,'viewer','Esme','Collins','pw_viewer_32','2024-08-01',1,'advertisement','EsmeC','Viewer profile'),
+(43,'finn.stewart@example.com',555100143,'viewer','Finn','Stewart','pw_viewer_33','2024-08-02',2,'promotion','FinnS','Viewer profile'),
+(44,'gianna.morris@example.com',555100144,'viewer','Gianna','Morris','pw_viewer_34','2024-08-03',4,'online platform','GiannaM','Viewer profile'),
+(45,'hudson.cook@example.com',555100145,'viewer','Hudson','Cook','pw_viewer_35','2024-08-04',3,'prefer not to say','HudsonC','Viewer profile'),
+(46,'isla.barnes@example.com',555100146,'viewer','Isla','Barnes','pw_viewer_36','2024-08-05',5,'word of mouth','IslaB','Viewer profile'),
+(47,'julian.russell@example.com',555100147,'viewer','Julian','Russell','pw_viewer_37','2024-08-06',6,'online search','JulianR','Viewer profile'),
+(48,'kaia.henderson@example.com',555100148,'viewer','Kaia','Henderson','pw_viewer_38','2024-08-07',1,'advertisement','KaiaH','Viewer profile');
+INSERT INTO User (
+    user_id, email, phone_number, user_role,
+    first_name, last_name, password, creation_date,
+    region_id, referral_method,
+    display_name, profile_description, profile_image_filepath
+) VALUES
+(49,'lucas.perry@example.com',555100149,'viewer','Lucas','Perry','pw_viewer_39','2024-08-08',2,'promotion','LucasP','Viewer profile', 'profiles/BasicWhite.png'),
+(50,'mina.foster@example.com',555100150,'viewer','Mina','Foster','pw_viewer_40','2024-08-09',5,'online platform','MinaF','Viewer profile', 'profiles/BasicWhite.png');
 
-(6, 'mira.chen@example.com', 555100106, 'creator', 'Mira', 'Chen', 'pw_creator_01', '2024-06-01', 5, 'online search'),
-(7, 'noah.bennett@example.com', 555100107, 'creator', 'Noah', 'Bennett', 'pw_creator_02', '2024-06-05', 1, 'word of mouth'),
-(8, 'priya.kapoor@example.com', 555100108, 'creator', 'Priya', 'Kapoor', 'pw_creator_03', '2024-06-09', 2, 'advertisement'),
-(9, 'leo.fischer@example.com', 555100109, 'creator', 'Leo', 'Fischer', 'pw_creator_04', '2024-06-13', 4, 'online platform'),
-(10, 'hana.mori@example.com', 555100110, 'creator', 'Hana', 'Mori', 'pw_creator_05', '2024-06-17', 5, 'promotion'),
-
-(11, 'aarav.patel@example.com', 555100111, 'viewer', 'Aarav', 'Patel', 'pw_viewer_01', '2024-07-01', 1, 'online search'),
-(12, 'amelia.scott@example.com', 555100112, 'viewer', 'Amelia', 'Scott', 'pw_viewer_02', '2024-07-02', 2, 'word of mouth'),
-(13, 'ben.turner@example.com', 555100113, 'viewer', 'Ben', 'Turner', 'pw_viewer_03', '2024-07-03', 3, 'advertisement'),
-(14, 'clara.nguyen@example.com', 555100114, 'viewer', 'Clara', 'Nguyen', 'pw_viewer_04', '2024-07-04', 1, 'promotion'),
-(15, 'daniel.kim@example.com', 555100115, 'viewer', 'Daniel', 'Kim', 'pw_viewer_05', '2024-07-05', 5, 'online platform'),
-(16, 'elena.ross@example.com', 555100116, 'viewer', 'Elena', 'Ross', 'pw_viewer_06', '2024-07-06', 2, 'prefer not to say'),
-(17, 'felix.ward@example.com', 555100117, 'viewer', 'Felix', 'Ward', 'pw_viewer_07', '2024-07-07', 4, 'online search'),
-(18, 'grace.hughes@example.com', 555100118, 'viewer', 'Grace', 'Hughes', 'pw_viewer_08', '2024-07-08', 1, 'advertisement'),
-(19, 'henry.long@example.com', 555100119, 'viewer', 'Henry', 'Long', 'pw_viewer_09', '2024-07-09', 3, 'word of mouth'),
-(20, 'ivy.brooks@example.com', 555100120, 'viewer', 'Ivy', 'Brooks', 'pw_viewer_10', '2024-07-10', 6, 'promotion'),
-(21, 'jackson.lee@example.com', 555100121, 'viewer', 'Jackson', 'Lee', 'pw_viewer_11', '2024-07-11', 1, 'online search'),
-(22, 'kiara.adams@example.com', 555100122, 'viewer', 'Kiara', 'Adams', 'pw_viewer_12', '2024-07-12', 2, 'online platform'),
-(23, 'liam.carter@example.com', 555100123, 'viewer', 'Liam', 'Carter', 'pw_viewer_13', '2024-07-13', 4, 'advertisement'),
-(24, 'maya.hall@example.com', 555100124, 'viewer', 'Maya', 'Hall', 'pw_viewer_14', '2024-07-14', 5, 'word of mouth'),
-(25, 'nora.wright@example.com', 555100125, 'viewer', 'Nora', 'Wright', 'pw_viewer_15', '2024-07-15', 3, 'online search'),
-(26, 'owen.mitchell@example.com', 555100126, 'viewer', 'Owen', 'Mitchell', 'pw_viewer_16', '2024-07-16', 6, 'promotion'),
-(27, 'paige.wood@example.com', 555100127, 'viewer', 'Paige', 'Wood', 'pw_viewer_17', '2024-07-17', 1, 'advertisement'),
-(28, 'quentin.bell@example.com', 555100128, 'viewer', 'Quentin', 'Bell', 'pw_viewer_18', '2024-07-18', 2, 'online platform'),
-(29, 'ruby.cooper@example.com', 555100129, 'viewer', 'Ruby', 'Cooper', 'pw_viewer_19', '2024-07-19', 5, 'prefer not to say'),
-(30, 'samuel.bailey@example.com', 555100130, 'viewer', 'Samuel', 'Bailey', 'pw_viewer_20', '2024-07-20', 4, 'word of mouth'),
-(31, 'tessa.murphy@example.com', 555100131, 'viewer', 'Tessa', 'Murphy', 'pw_viewer_21', '2024-07-21', 1, 'online search'),
-(32, 'umar.ali@example.com', 555100132, 'viewer', 'Umar', 'Ali', 'pw_viewer_22', '2024-07-22', 2, 'advertisement'),
-(33, 'violet.rivera@example.com', 555100133, 'viewer', 'Violet', 'Rivera', 'pw_viewer_23', '2024-07-23', 3, 'promotion'),
-(34, 'william.gray@example.com', 555100134, 'viewer', 'William', 'Gray', 'pw_viewer_24', '2024-07-24', 6, 'online platform'),
-(35, 'ximena.flores@example.com', 555100135, 'viewer', 'Ximena', 'Flores', 'pw_viewer_25', '2024-07-25', 5, 'word of mouth'),
-(36, 'yusuf.khan@example.com', 555100136, 'viewer', 'Yusuf', 'Khan', 'pw_viewer_26', '2024-07-26', 4, 'online search'),
-(37, 'zoe.peterson@example.com', 555100137, 'viewer', 'Zoe', 'Peterson', 'pw_viewer_27', '2024-07-27', 1, 'advertisement'),
-(38, 'alexis.moore@example.com', 555100138, 'viewer', 'Alexis', 'Moore', 'pw_viewer_28', '2024-07-28', 2, 'promotion'),
-(39, 'brandon.james@example.com', 555100139, 'viewer', 'Brandon', 'James', 'pw_viewer_29', '2024-07-29', 3, 'online platform'),
-(40, 'celeste.diaz@example.com', 555100140, 'viewer', 'Celeste', 'Diaz', 'pw_viewer_30', '2024-07-30', 6, 'word of mouth'),
-(41, 'declan.evans@example.com', 555100141, 'viewer', 'Declan', 'Evans', 'pw_viewer_31', '2024-07-31', 5, 'online search'),
-(42, 'esme.collins@example.com', 555100142, 'viewer', 'Esme', 'Collins', 'pw_viewer_32', '2024-08-01', 1, 'advertisement'),
-(43, 'finn.stewart@example.com', 555100143, 'viewer', 'Finn', 'Stewart', 'pw_viewer_33', '2024-08-02', 2, 'promotion'),
-(44, 'gianna.morris@example.com', 555100144, 'viewer', 'Gianna', 'Morris', 'pw_viewer_34', '2024-08-03', 4, 'online platform'),
-(45, 'hudson.cook@example.com', 555100145, 'viewer', 'Hudson', 'Cook', 'pw_viewer_35', '2024-08-04', 3, 'prefer not to say'),
-(46, 'isla.barnes@example.com', 555100146, 'viewer', 'Isla', 'Barnes', 'pw_viewer_36', '2024-08-05', 5, 'word of mouth'),
-(47, 'julian.russell@example.com', 555100147, 'viewer', 'Julian', 'Russell', 'pw_viewer_37', '2024-08-06', 6, 'online search'),
-(48, 'kaia.henderson@example.com', 555100148, 'viewer', 'Kaia', 'Henderson', 'pw_viewer_38', '2024-08-07', 1, 'advertisement'),
-(49, 'lucas.perry@example.com', 555100149, 'viewer', 'Lucas', 'Perry', 'pw_viewer_39', '2024-08-08', 2, 'promotion'),
-(50, 'mina.foster@example.com', 555100150, 'viewer', 'Mina', 'Foster', 'pw_viewer_40', '2024-08-09', 5, 'online platform');
-
+INSERT INTO Creator (user_id, follow_count, view_count) VALUES
+(6, 842, 15400),
+(7, 615, 10850),
+(8, 1290, 22100),
+(9, 970, 18425),
+(10, 1115, 19980);
 INSERT INTO Admin (user_id, department, hire_date) VALUES
 (1, 'IT', '2024-01-15'),
 (2, 'marketing', '2024-02-20'),
 (3, 'management', '2024-03-12'),
 (4, 'development', '2024-04-25'),
 (5, 'IT', '2024-05-27');
-
-INSERT INTO Creator (user_id, display_name, profile_description, profile_image_filepath, follow_count, view_count) VALUES
-(6, 'MiraCreates', 'Documentary and travel storyteller focused on world culture.', 'profiles/mira.png', 842, 15400),
-(7, 'NoahNarrates', 'Long-form podcast and interview creator.', 'profiles/noah.png', 615, 10850),
-(8, 'PriyaPlays', 'Music-driven creator covering modern and classical influences.', 'profiles/priya.png', 1290, 22100),
-(9, 'LeoLens', 'Short film and serialized drama creator.', 'profiles/leo.png', 970, 18425),
-(10, 'HanaStudio', 'Animation, commentary, and curated culture essays.', 'profiles/hana.png', 1115, 19980);
 
 INSERT INTO Viewer (user_id, age, preferred_language) VALUES
 (11, 22, 'English'),
