@@ -20,17 +20,9 @@ def run_sql_file(filename: str):
 
 
 if __name__ == "__main__":
-    # Seed DDL
-    print("Seeding DDL...")
-    run_sql_file("SeedDDL.sql")
-    print("DDL Seeded Successfully")
+    seeds = ["DDL","StoredProcedures","Triggers","DML"]
 
-    # Seed Dummy Data
-    print("Seeding Dummy Data...")
-    run_sql_file("seedDML.sql")
-    print("Dummy Data Seeded Successfully")
-
-    # Seed Stored Procedures
-    print("Seeding Stored Procedures...")
-    run_sql_file("SeedStoredProcedures.sql")
-    print("Stored Procedures Seeded Successfully")
+    for seed in seeds:
+        print("Seeding "+seed+"...")
+        run_sql_file("Seed"+seed+".sql")
+        print(seed+" Seeded Successfully")
