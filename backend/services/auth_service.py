@@ -93,6 +93,9 @@ def signup(payload: dict[str, Any]) -> tuple[str, SessionUser]:
         "creation_date": creation_date,
         "region_id": region["region_id"],
         "referral_method": payload["referral_method"],
+        "display_name": (payload.get("display_name") or "").strip(),
+        "profile_description": (payload.get("profile_description") or "Profile Description").strip(),
+        "profile_image_filepath": payload.get("profile_image_filepath") or "profiles/DefaultProfileImage.png",
     }
 
     role = payload["user_role"]
@@ -114,9 +117,6 @@ def signup(payload: dict[str, Any]) -> tuple[str, SessionUser]:
     elif role == "creator":
         normalized_payload.update(
             {
-                "display_name": payload["display_name"].strip(),
-                "profile_description": payload["profile_description"].strip(),
-                "profile_image_filepath": "default/image/filepath.png",
                 "follow_count": 0,
                 "view_count": 0,
             }
