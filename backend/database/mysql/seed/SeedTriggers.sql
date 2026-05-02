@@ -54,4 +54,38 @@ FOR EACH ROW
 BEGIN
     CALL ValidateUserRole(NEW.user_id, 'admin');
 END$$
+
+DELIMITER $$
+
+CREATE TRIGGER UpdateFollowCount
+AFTER INSERT ON Follows
+FOR EACH ROW
+BEGIN
+    UPDATE Creator
+    SET follow_count = follow_count + 1
+    WHERE user_id = NEW.creator_id;
+END$$
+
+DELIMITER $$
+
+CREATE TRIGGER UpdateWatchCount
+AFTER INSERT ON Watches
+FOR EACH ROW
+BEGIN
+    UPDATE Creator
+    SET watch_count = watch_count + 1
+    WHERE user_id = (
+        SELECT c.user_id
+        FROM ContentItem ci
+        JOIN Creator c ON c.user_id = (
+            SELECT user_id 
+            FROM ContentItem 
+            WHERE content_id = ci.content_id
+            LIMIT 1
+        )
+        WHERE ci.content_id = NEW.content_id
+        LIMIT 1
+    );
+END$$
+
 DELIMITER ;

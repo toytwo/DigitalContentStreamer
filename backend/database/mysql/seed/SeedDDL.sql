@@ -32,7 +32,7 @@ CREATE TABLE User (
 CREATE TABLE Creator (
     user_id INT NOT NULL,
     follow_count INT NOT NULL,
-    view_count INT NOT NULL,
+    watch_count INT NOT NULL,
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
     ON DELETE CASCADE
