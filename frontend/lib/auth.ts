@@ -43,6 +43,18 @@ async function parseJson(response: Response): Promise<AuthResponse | null> {
   }
 }
 
+function formatValidationError(detail: unknown): string {
+  // Handle Pydantic validation errors (array of error objects)
+  if (Array.isArray(detail) && detail.length > 0) {
+    const firstError = detail[0];
+    if (typeof firstError === "object" && firstError !== null && "msg" in firstError) {
+      return (firstError as { msg: string }).msg;
+    }
+  }
+  // Fallback: return as JSON string
+  return JSON.stringify(detail);
+}
+
 export async function login(request: LoginRequest): Promise<SessionUser> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
@@ -61,7 +73,7 @@ export async function login(request: LoginRequest): Promise<SessionUser> {
         ? "Invalid email or password"
         : typeof detail === "string"
         ? detail
-        : JSON.stringify(detail);
+        : formatValidationError(detail);
     throw new Error(message);
   }
 
@@ -86,7 +98,7 @@ export async function signup(request: SignupRequest): Promise<SessionUser> {
         ? "Unable to create account"
         : typeof detail === "string"
         ? detail
-        : JSON.stringify(detail);
+        : formatValidationError(detail);
     throw new Error(message);
   }
 

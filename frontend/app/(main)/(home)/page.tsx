@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AppShell, PageCard, PageHeader } from "../../components/ui";
+import { AppShell, PageCard, PageHeader, Button } from "../../components/ui";
 import SessionActionButton from "../../(auth)/components/SessionActionButton";
 import SessionLabel from "../../(auth)/components/SessionLabel";
 import { getCurrentSession, type SessionUser } from "../../../lib/auth";
@@ -19,11 +19,21 @@ type ContentItem = {
   price: number;
 };
 
+type SortOption = "title" | "type" | "release_date" | "genre";
+
+const SORT_OPTIONS = [
+  { value: "release_date", label: "Release Date" },
+  { value: "title", label: "Title" },
+  { value: "type", label: "Type" },
+  { value: "genre", label: "Genre" },
+] as const;
+
 export default function Home() {
   const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [featuredContent, setFeaturedContent] = useState<ContentItem[]>([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("release_date");
 
   useEffect(() => {
     getCurrentSession()
@@ -31,12 +41,12 @@ export default function Home() {
       .finally(() => setIsCheckingSession(false));
   }, []);
 
-  useEffect(() => {
+  const loadContent = (sort: SortOption) => {
     if (!sessionUser) return;
 
     setIsLoadingContent(true);
 
-    fetch("http://localhost:8000/content/homepage", {
+    fetch(`http://localhost:8000/content/homepage?sort_by=${sort}`, {
       credentials: "include",
     })
       .then((response) => response.json())
@@ -49,7 +59,16 @@ export default function Home() {
         console.error("Failed to load homepage content:", error);
       })
       .finally(() => setIsLoadingContent(false));
+  };
+
+  useEffect(() => {
+    loadContent(sortBy);
   }, [sessionUser]);
+
+  const handleSortChange = (newSort: SortOption) => {
+    setSortBy(newSort);
+    loadContent(newSort);
+  };
 
   return (
     <AppShell>
@@ -77,13 +96,28 @@ export default function Home() {
 
         {!isCheckingSession && sessionUser && (
           <section className="space-y-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-sky-300/80">
-                Featured
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">
-                Popular on DigitalContentStreamer
-              </h2>
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div>
+                <p className="text-xs uppercase tracking-[0.4em] text-sky-300/80">
+                  Featured
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-white">
+                  Popular on DigitalContentStreamer
+                </h2>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {SORT_OPTIONS.map((option) => (
+                  <Button
+                    key={option.value}
+                    onClick={() => handleSortChange(option.value)}
+                    variant={sortBy === option.value ? "primary" : "secondary"}
+                    className="rounded-lg px-4 py-2 text-sm"
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {isLoadingContent && (
