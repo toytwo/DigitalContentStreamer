@@ -11,7 +11,7 @@ CREATE TABLE Region (
 CREATE TABLE User (
     user_id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL UNIQUE,
-    phone_number INT NOT NULL,
+    phone_number INT NOT NULL UNIQUE,
     user_role VARCHAR(20) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE User (
 CREATE TABLE Creator (
     user_id INT NOT NULL,
     follow_count INT NOT NULL,
-    view_count INT NOT NULL,
+    watch_count INT NOT NULL,
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
     ON DELETE CASCADE

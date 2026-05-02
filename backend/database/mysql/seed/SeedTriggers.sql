@@ -54,4 +54,5 @@ FOR EACH ROW
 BEGIN
     CALL ValidateUserRole(NEW.user_id, 'admin');
 END$$
+
 DELIMITER ;

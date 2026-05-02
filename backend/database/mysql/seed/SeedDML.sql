@@ -72,17 +72,11 @@ INSERT INTO User (
 (45,'hudson.cook@example.com',555100145,'viewer','Hudson','Cook','pw_viewer_35','2024-08-04',3,'prefer not to say','HudsonC','Viewer profile'),
 (46,'isla.barnes@example.com',555100146,'viewer','Isla','Barnes','pw_viewer_36','2024-08-05',5,'word of mouth','IslaB','Viewer profile'),
 (47,'julian.russell@example.com',555100147,'viewer','Julian','Russell','pw_viewer_37','2024-08-06',6,'online search','JulianR','Viewer profile'),
-(48,'kaia.henderson@example.com',555100148,'viewer','Kaia','Henderson','pw_viewer_38','2024-08-07',1,'advertisement','KaiaH','Viewer profile');
-INSERT INTO User (
-    user_id, email, phone_number, user_role,
-    first_name, last_name, password, creation_date,
-    region_id, referral_method,
-    display_name, profile_description, profile_image_filepath
-) VALUES
-(49,'lucas.perry@example.com',555100149,'viewer','Lucas','Perry','pw_viewer_39','2024-08-08',2,'promotion','LucasP','Viewer profile', 'profiles/BasicWhite.png'),
-(50,'mina.foster@example.com',555100150,'viewer','Mina','Foster','pw_viewer_40','2024-08-09',5,'online platform','MinaF','Viewer profile', 'profiles/BasicWhite.png');
+(48,'kaia.henderson@example.com',555100148,'viewer','Kaia','Henderson','pw_viewer_38','2024-08-07',1,'advertisement','KaiaH','Viewer profile'),
+(49,'lucas.perry@example.com',555100149,'viewer','Lucas','Perry','pw_viewer_39','2024-08-08',2,'promotion','LucasP','Viewer profile'),
+(50,'mina.foster@example.com',555100150,'viewer','Mina','Foster','pw_viewer_40','2024-08-09',5,'online platform','MinaF','Viewer profile');
 
-INSERT INTO Creator (user_id, follow_count, view_count) VALUES
+INSERT INTO Creator (user_id, follow_count, watch_count) VALUES
 (6, 842, 15400),
 (7, 615, 10850),
 (8, 1290, 22100),

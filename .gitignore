@@ -2,6 +2,12 @@
 __pycache__/
 *.pyc
 
+# Ignore all profile images
+backend/database/images/profiles/*
+
+# BUT keep the default image
+!backend/database/images/profiles/DefaultProfileImage.png
+
 # Node / Next
 node_modules/
 .next/
