@@ -76,7 +76,7 @@ INSERT INTO User (
 (49,'lucas.perry@example.com',555100149,'viewer','Lucas','Perry','pw_viewer_39','2024-08-08',2,'promotion','LucasP','Viewer profile'),
 (50,'mina.foster@example.com',555100150,'viewer','Mina','Foster','pw_viewer_40','2024-08-09',5,'online platform','MinaF','Viewer profile');
 
-INSERT INTO Creator (user_id, follow_count, view_count) VALUES
+INSERT INTO Creator (user_id, follow_count, watch_count) VALUES
 (6, 842, 15400),
 (7, 615, 10850),
 (8, 1290, 22100),

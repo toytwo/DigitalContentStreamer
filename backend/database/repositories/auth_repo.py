@@ -140,13 +140,13 @@ def create_signup_user(payload: dict[str, Any]) -> dict[str, Any]:
                         INSERT INTO Creator (
                             user_id,
                             follow_count,
-                            view_count
+                            watch_count
                         ) VALUES (%s, %s, %s)
                         """,
                         (
                             user_id,
                             payload["follow_count"],
-                            payload["view_count"],
+                            payload["watch_count"],
                         ),
                     )
                 elif role == "admin":

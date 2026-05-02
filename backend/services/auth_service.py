@@ -118,7 +118,7 @@ def signup(payload: dict[str, Any]) -> tuple[str, SessionUser]:
         normalized_payload.update(
             {
                 "follow_count": 0,
-                "view_count": 0,
+                "watch_count": 0,
             }
         )
     elif role == "admin":
