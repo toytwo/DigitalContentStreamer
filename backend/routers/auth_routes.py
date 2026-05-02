@@ -72,7 +72,7 @@ def signup_endpoint(payload: SignupRequest, response: Response):
         if getattr(error, "errno", None) == 1062:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="An account with that email already exists",
+                detail="An account with that display name / email already exists",
             ) from error
         raise
 
