@@ -27,9 +27,34 @@ export type LoginRequest = {
   password: string;
 };
 
+export type ContentRequest = {
+  title: string;
+  type: string;
+  release_date: string;
+  required_tier: number;
+  genre: string;
+  runtime_minutes: number;
+  original_language: string;
+  age_rating: string;
+  collection_id?: number;
+};
+
+export type SubscriptionTier = {
+  tier_id: number;
+  name: string;
+  description: string;
+  price: number;
+};
+
 type AuthResponse = {
   success: boolean;
   user?: SessionUser;
+  detail?: string;
+};
+
+type ContentResponse = {
+  success: boolean;
+  payload?: unknown;
   detail?: string;
 };
 
@@ -123,4 +148,83 @@ export async function logout(): Promise<void> {
     method: "POST",
     credentials: "include",
   });
+}
+
+export async function getSubscriptionTiers(): Promise<SubscriptionTier[]> {
+  const response = await fetch(`${API_BASE_URL}/content/tiers`, {
+    credentials: "include",
+  });
+
+  const data = (await response.json()) as ContentResponse;
+  if (!response.ok || !data?.success || !data.payload) {
+    throw new Error("Failed to fetch subscription tiers");
+  }
+
+  return data.payload as SubscriptionTier[];
+}
+
+export async function createContent(request: ContentRequest): Promise<unknown> {
+  const response = await fetch(`${API_BASE_URL}/content`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  const data = (await response.json()) as ContentResponse;
+  if (!response.ok || !data?.success) {
+    const detail = data?.detail;
+    const message =
+      detail == null
+        ? "Failed to create content"
+        : typeof detail === "string"
+        ? detail
+        : JSON.stringify(detail);
+    throw new Error(message);
+  }
+
+  return data.payload;
+}
+
+export async function getContent(contentId: number): Promise<unknown> {
+  const response = await fetch(`${API_BASE_URL}/content/${contentId}`, {
+    credentials: "include",
+  });
+
+  const data = (await response.json()) as ContentResponse;
+  if (!response.ok || !data?.success) {
+    throw new Error("Failed to fetch content");
+  }
+
+  return data.payload;
+}
+
+export async function updateContent(
+  contentId: number,
+  request: Partial<ContentRequest>
+): Promise<unknown> {
+  const response = await fetch(`${API_BASE_URL}/content/${contentId}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  const data = (await response.json()) as ContentResponse;
+  if (!response.ok || !data?.success) {
+    const detail = data?.detail;
+    const message =
+      detail == null
+        ? "Failed to update content"
+        : typeof detail === "string"
+        ? detail
+        : JSON.stringify(detail);
+    throw new Error(message);
+  }
+
+  return data.payload;
 }

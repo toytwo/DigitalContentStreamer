@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell, PageCard, PageHeader, Button } from "../../components/ui";
 import SessionActionButton from "../../(auth)/components/SessionActionButton";
 import SessionLabel from "../../(auth)/components/SessionLabel";
@@ -28,7 +29,10 @@ const SORT_OPTIONS = [
   { value: "genre", label: "Genre" },
 ] as const;
 
+const SESSION_CHANGED_EVENT = "dcs-session-changed";
+
 export default function Home() {
+  const router = useRouter();
   const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [featuredContent, setFeaturedContent] = useState<ContentItem[]>([]);
@@ -36,9 +40,38 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortOption>("release_date");
 
   useEffect(() => {
+    async function refreshSession() {
+      const currentUser = await getCurrentSession();
+      setSessionUser(currentUser);
+      if (!currentUser) {
+        setFeaturedContent([]);
+      }
+    }
+
+    function handleSessionChanged() {
+      void refreshSession();
+    }
+
+    let isMounted = true;
+
     getCurrentSession()
-      .then((currentUser) => setSessionUser(currentUser))
-      .finally(() => setIsCheckingSession(false));
+      .then((currentUser) => {
+        if (isMounted) {
+          setSessionUser(currentUser);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
+      });
+
+    window.addEventListener(SESSION_CHANGED_EVENT, handleSessionChanged);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener(SESSION_CHANGED_EVENT, handleSessionChanged);
+    };
   }, []);
 
   const loadContent = (sort: SortOption) => {
@@ -134,8 +167,18 @@ export default function Home() {
               {featuredContent.map((content) => (
                 <div
                   key={content.content_id}
-                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/30 transition hover:-translate-y-1 hover:bg-white/[0.07]"
+                  className="relative rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/30 transition hover:-translate-y-1 hover:bg-white/[0.07]"
                 >
+                  {sessionUser?.role === "admin" && (
+                    <button
+                      onClick={() => router.push(`/contentedit/${content.content_id}`)}
+                      className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                      title="Edit content"
+                    >
+                      ✎
+                    </button>
+                  )}
+
                   <div className="mb-4 flex h-32 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400/20 to-slate-900 px-4 text-center text-lg font-semibold text-white">
                     {content.title}
                   </div>
@@ -163,6 +206,16 @@ export default function Home() {
               ))}
             </div>
           </section>
+        )}
+
+        {!isCheckingSession && sessionUser && (sessionUser.role === "creator" || sessionUser.role === "admin") && (
+          <button
+            onClick={() => router.push("/upload")}
+            className="fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-sky-600 text-3xl font-bold text-white shadow-xl transition hover:scale-110 hover:shadow-2xl"
+            title="Upload new content"
+          >
+            +
+          </button>
         )}
       </div>
     </AppShell>
