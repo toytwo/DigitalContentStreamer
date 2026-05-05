@@ -14,13 +14,10 @@ import {
   Select,
 } from "../../components/ui";
 import {
-  getCurrentSession,
-  createContent,
-  getSubscriptionTiers,
-  type SessionUser,
+  useAuth,
   type ContentRequest,
   type SubscriptionTier,
-} from "../../../lib/auth";
+} from "../../(auth)/AuthProvider";
 
 const CONTENT_TYPE_OPTIONS = [
   { value: "movie", label: "Movie" },
@@ -69,11 +66,9 @@ const AGE_RATING_OPTIONS = [
 
 export default function UploadPage() {
   const router = useRouter();
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const { sessionUser, isCheckingSession, getSubscriptionTiers, createContent } = useAuth();
   const [subscriptionTiers, setSubscriptionTiers] = useState<SubscriptionTier[]>([]);
 
-  // ContentItem fields
   const [title, setTitle] = useState("");
   const [contentType, setContentType] = useState<string>(CONTENT_TYPE_OPTIONS[0].value);
   const [releaseDate, setReleaseDate] = useState("");
@@ -88,22 +83,10 @@ export default function UploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    getCurrentSession().then((user: SessionUser | null) => {
-      if (isMounted) {
-        setSessionUser(user);
-        if (!user || (user.role !== "creator" && user.role !== "admin")) {
-          router.replace("/");
-        }
-      }
-      setIsCheckingSession(false);
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
+    if (!isCheckingSession && (!sessionUser || (sessionUser.role !== "creator" && sessionUser.role !== "admin"))) {
+      router.replace("/");
+    }
+  }, [isCheckingSession, sessionUser, router]);
 
   useEffect(() => {
     if (!sessionUser) return;

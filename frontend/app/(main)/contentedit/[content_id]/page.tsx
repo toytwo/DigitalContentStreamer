@@ -14,14 +14,10 @@ import {
   Select,
 } from "../../../components/ui";
 import {
-  getCurrentSession,
-  updateContent,
-  getContent,
-  getSubscriptionTiers,
-  type SessionUser,
+  useAuth,
   type ContentRequest,
   type SubscriptionTier,
-} from "../../../../lib/auth";
+} from "../../../(auth)/AuthProvider";
 
 const CONTENT_TYPE_OPTIONS = [
   { value: "movie", label: "Movie" },
@@ -73,12 +69,10 @@ export default function ContentEditPage() {
   const params = useParams();
   const contentId = parseInt(params.content_id as string, 10);
 
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const { sessionUser, isCheckingSession, getSubscriptionTiers, getContent, updateContent } = useAuth();
   const [isLoadingContent, setIsLoadingContent] = useState(true);
   const [subscriptionTiers, setSubscriptionTiers] = useState<SubscriptionTier[]>([]);
 
-  // ContentItem fields
   const [title, setTitle] = useState("");
   const [contentType, setContentType] = useState<string>(CONTENT_TYPE_OPTIONS[0].value);
   const [releaseDate, setReleaseDate] = useState("");
@@ -93,22 +87,10 @@ export default function ContentEditPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    getCurrentSession().then((user: SessionUser | null) => {
-      if (isMounted) {
-        setSessionUser(user);
-        if (!user || user.role !== "admin") {
-          router.replace("/");
-        }
-      }
-      setIsCheckingSession(false);
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
+    if (!isCheckingSession && (!sessionUser || sessionUser.role !== "admin")) {
+      router.replace("/");
+    }
+  }, [isCheckingSession, sessionUser, router]);
 
   useEffect(() => {
     if (!sessionUser || isCheckingSession) return;

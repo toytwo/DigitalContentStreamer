@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppShell, PageCard, PageHeader, Button } from "../../components/ui";
 import SessionActionButton from "../../(auth)/components/SessionActionButton";
 import SessionLabel from "../../(auth)/components/SessionLabel";
-import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+import { useAuth } from "../../(auth)/AuthProvider";
 
 type ContentItem = {
   content_id: number;
@@ -29,50 +29,21 @@ const SORT_OPTIONS = [
   { value: "genre", label: "Genre" },
 ] as const;
 
-const SESSION_CHANGED_EVENT = "dcs-session-changed";
-
 export default function Home() {
   const router = useRouter();
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const { sessionUser, isCheckingSession } = useAuth();
   const [featuredContent, setFeaturedContent] = useState<ContentItem[]>([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("release_date");
 
   useEffect(() => {
-    async function refreshSession() {
-      const currentUser = await getCurrentSession();
-      setSessionUser(currentUser);
-      if (!currentUser) {
-        setFeaturedContent([]);
-      }
+    if (!sessionUser) {
+      setFeaturedContent([]);
+      return;
     }
 
-    function handleSessionChanged() {
-      void refreshSession();
-    }
-
-    let isMounted = true;
-
-    getCurrentSession()
-      .then((currentUser) => {
-        if (isMounted) {
-          setSessionUser(currentUser);
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsCheckingSession(false);
-        }
-      });
-
-    window.addEventListener(SESSION_CHANGED_EVENT, handleSessionChanged);
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener(SESSION_CHANGED_EVENT, handleSessionChanged);
-    };
-  }, []);
+    loadContent(sortBy);
+  }, [sessionUser, sortBy]);
 
   const loadContent = (sort: SortOption) => {
     if (!sessionUser) return;
@@ -93,10 +64,6 @@ export default function Home() {
       })
       .finally(() => setIsLoadingContent(false));
   };
-
-  useEffect(() => {
-    loadContent(sortBy);
-  }, [sessionUser]);
 
   const handleSortChange = (newSort: SortOption) => {
     setSortBy(newSort);

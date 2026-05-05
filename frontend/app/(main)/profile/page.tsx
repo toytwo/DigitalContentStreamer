@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentSession, logout, type SessionUser } from "../../../lib/auth";
+import { useAuth } from "../../(auth)/AuthProvider";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -26,7 +26,7 @@ type TabName = 'contact' | 'personal' | 'manage';
 
 export default function Page(){
     const router = useRouter();
-    const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+    const { sessionUser, logout, isCheckingSession } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [activeTab, setActiveTab] = useState<TabName>('contact');
     const [editingField, setEditingField] = useState<string | null>(null);
@@ -39,14 +39,10 @@ export default function Page(){
     const [deleteError, setDeleteError] = useState<string | null>(null);
 
     useEffect(() => {
-        getCurrentSession().then((currentUser) => {
-            if (!currentUser) {
-                router.replace('/login');
-                return;
-            }
-            setSessionUser(currentUser);
-        });
-    }, [router]);
+        if (!isCheckingSession && !sessionUser) {
+            router.replace('/login');
+        }
+    }, [isCheckingSession, sessionUser, router]);
 
     useEffect(() => {
         if (!sessionUser) return;
