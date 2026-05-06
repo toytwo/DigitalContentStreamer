@@ -1,7 +1,16 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+
 export type SessionUser = {
   user_id: number;
   email: string;
   role: "viewer" | "creator" | "admin";
+};
+
+export type LoginRequest = {
+  email: string;
+  password: string;
 };
 
 export type SignupRequest = {
@@ -20,11 +29,6 @@ export type SignupRequest = {
   display_name?: string;
   profile_description?: string;
   department?: string;
-};
-
-export type LoginRequest = {
-  email: string;
-  password: string;
 };
 
 export type ContentRequest = {
@@ -46,41 +50,42 @@ export type SubscriptionTier = {
   price: number;
 };
 
-type AuthResponse = {
-  success: boolean;
-  user?: SessionUser;
-  detail?: string;
+type AuthContextType = {
+  sessionUser: SessionUser | null;
+  isCheckingSession: boolean;
+  login: (request: LoginRequest) => Promise<SessionUser>;
+  signup: (request: SignupRequest) => Promise<SessionUser>;
+  logout: () => Promise<void>;
+  getCurrentSession: () => Promise<SessionUser | null>;
+  getSubscriptionTiers: () => Promise<SubscriptionTier[]>;
+  createContent: (request: ContentRequest) => Promise<unknown>;
+  getContent: (contentId: number) => Promise<unknown>;
+  updateContent: (contentId: number, request: Partial<ContentRequest>) => Promise<unknown>;
 };
 
-type ContentResponse = {
-  success: boolean;
-  payload?: unknown;
-  detail?: string;
-};
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
-async function parseJson(response: Response): Promise<AuthResponse | null> {
+async function parseJson(response: Response): Promise<unknown> {
   try {
-    return (await response.json()) as AuthResponse;
+    return await response.json();
   } catch {
     return null;
   }
 }
 
 function formatValidationError(detail: unknown): string {
-  // Handle Pydantic validation errors (array of error objects)
   if (Array.isArray(detail) && detail.length > 0) {
     const firstError = detail[0];
     if (typeof firstError === "object" && firstError !== null && "msg" in firstError) {
       return (firstError as { msg: string }).msg;
     }
   }
-  // Fallback: return as JSON string
   return JSON.stringify(detail);
 }
 
-export async function login(request: LoginRequest): Promise<SessionUser> {
+async function login(request: LoginRequest): Promise<SessionUser> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     credentials: "include",
@@ -90,7 +95,7 @@ export async function login(request: LoginRequest): Promise<SessionUser> {
     body: JSON.stringify(request),
   });
 
-  const data = await parseJson(response);
+  const data = (await parseJson(response)) as { success?: boolean; user?: SessionUser; detail?: unknown };
   if (!response.ok || !data?.success || !data.user) {
     const detail = data?.detail;
     const message =
@@ -105,7 +110,7 @@ export async function login(request: LoginRequest): Promise<SessionUser> {
   return data.user;
 }
 
-export async function signup(request: SignupRequest): Promise<SessionUser> {
+async function signup(request: SignupRequest): Promise<SessionUser> {
   const response = await fetch(`${API_BASE_URL}/auth/signup`, {
     method: "POST",
     credentials: "include",
@@ -115,7 +120,7 @@ export async function signup(request: SignupRequest): Promise<SessionUser> {
     body: JSON.stringify(request),
   });
 
-  const data = await parseJson(response);
+  const data = (await parseJson(response)) as { success?: boolean; user?: SessionUser; detail?: unknown };
   if (!response.ok || !data?.success || !data.user) {
     const detail = data?.detail;
     const message =
@@ -130,12 +135,12 @@ export async function signup(request: SignupRequest): Promise<SessionUser> {
   return data.user;
 }
 
-export async function getCurrentSession(): Promise<SessionUser | null> {
+async function getCurrentSession(): Promise<SessionUser | null> {
   const response = await fetch(`${API_BASE_URL}/auth/me`, {
     credentials: "include",
   });
 
-  const data = await parseJson(response);
+  const data = (await parseJson(response)) as { success?: boolean; user?: SessionUser };
   if (!response.ok || !data?.success || !data.user) {
     return null;
   }
@@ -143,19 +148,19 @@ export async function getCurrentSession(): Promise<SessionUser | null> {
   return data.user;
 }
 
-export async function logout(): Promise<void> {
+async function logout(): Promise<void> {
   await fetch(`${API_BASE_URL}/auth/logout`, {
     method: "POST",
     credentials: "include",
   });
 }
 
-export async function getSubscriptionTiers(): Promise<SubscriptionTier[]> {
+async function getSubscriptionTiers(): Promise<SubscriptionTier[]> {
   const response = await fetch(`${API_BASE_URL}/content/tiers`, {
     credentials: "include",
   });
 
-  const data = (await response.json()) as ContentResponse;
+  const data = (await parseJson(response)) as { success?: boolean; payload?: unknown };
   if (!response.ok || !data?.success || !data.payload) {
     throw new Error("Failed to fetch subscription tiers");
   }
@@ -163,7 +168,7 @@ export async function getSubscriptionTiers(): Promise<SubscriptionTier[]> {
   return data.payload as SubscriptionTier[];
 }
 
-export async function createContent(request: ContentRequest): Promise<unknown> {
+async function createContent(request: ContentRequest): Promise<unknown> {
   const response = await fetch(`${API_BASE_URL}/content`, {
     method: "POST",
     credentials: "include",
@@ -173,7 +178,7 @@ export async function createContent(request: ContentRequest): Promise<unknown> {
     body: JSON.stringify(request),
   });
 
-  const data = (await response.json()) as ContentResponse;
+  const data = (await parseJson(response)) as { success?: boolean; payload?: unknown; detail?: unknown };
   if (!response.ok || !data?.success) {
     const detail = data?.detail;
     const message =
@@ -188,12 +193,12 @@ export async function createContent(request: ContentRequest): Promise<unknown> {
   return data.payload;
 }
 
-export async function getContent(contentId: number): Promise<unknown> {
+async function getContent(contentId: number): Promise<unknown> {
   const response = await fetch(`${API_BASE_URL}/content/${contentId}`, {
     credentials: "include",
   });
 
-  const data = (await response.json()) as ContentResponse;
+  const data = (await parseJson(response)) as { success?: boolean; payload?: unknown };
   if (!response.ok || !data?.success) {
     throw new Error("Failed to fetch content");
   }
@@ -201,10 +206,7 @@ export async function getContent(contentId: number): Promise<unknown> {
   return data.payload;
 }
 
-export async function updateContent(
-  contentId: number,
-  request: Partial<ContentRequest>
-): Promise<unknown> {
+async function updateContent(contentId: number, request: Partial<ContentRequest>): Promise<unknown> {
   const response = await fetch(`${API_BASE_URL}/content/${contentId}`, {
     method: "PUT",
     credentials: "include",
@@ -214,7 +216,7 @@ export async function updateContent(
     body: JSON.stringify(request),
   });
 
-  const data = (await response.json()) as ContentResponse;
+  const data = (await parseJson(response)) as { success?: boolean; payload?: unknown; detail?: unknown };
   if (!response.ok || !data?.success) {
     const detail = data?.detail;
     const message =
@@ -227,4 +229,67 @@ export async function updateContent(
   }
 
   return data.payload;
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getCurrentSession()
+      .then((user) => {
+        if (isMounted) {
+          setSessionUser(user);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const contextValue: AuthContextType = {
+    sessionUser,
+    isCheckingSession,
+    login: async (request: LoginRequest) => {
+      const user = await login(request);
+      setSessionUser(user);
+      return user;
+    },
+    signup: async (request: SignupRequest) => {
+      const user = await signup(request);
+      setSessionUser(user);
+      return user;
+    },
+    logout: async () => {
+      await logout();
+      setSessionUser(null);
+    },
+    getCurrentSession: async () => {
+      const user = await getCurrentSession();
+      setSessionUser(user);
+      return user;
+    },
+    getSubscriptionTiers,
+    createContent,
+    getContent,
+    updateContent,
+  };
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }

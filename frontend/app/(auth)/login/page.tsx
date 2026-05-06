@@ -4,28 +4,21 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { AppShell, Badge, Button, Input, PageCard, PageHeader, SectionCard } from "../../components/ui";
-import { getCurrentSession, login, type SessionUser } from "../../../lib/auth";
+import { useAuth } from "../AuthProvider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { sessionUser, isCheckingSession, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    getCurrentSession().then((sessionUser: SessionUser | null) => {
-      if (isMounted && sessionUser) {
-        router.replace("/");
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
+    if (!isCheckingSession && sessionUser) {
+      router.replace("/");
+    }
+  }, [isCheckingSession, sessionUser, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

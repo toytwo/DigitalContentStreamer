@@ -15,7 +15,7 @@ import {
   Select,
   Textarea,
 } from "../../components/ui";
-import { getCurrentSession, signup, type SessionUser, type SignupRequest } from "../../../lib/auth";
+import { useAuth, type SignupRequest } from "../AuthProvider";
 
 const ROLE_OPTIONS = [
   {
@@ -84,6 +84,7 @@ const SUBSCRIPTION_TIER_OPTIONS = [
 
 export default function SignupPage() {
   const router = useRouter();
+  const { sessionUser, isCheckingSession, signup } = useAuth();
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [userRole, setUserRole] = useState<SignupRequest["user_role"]>("viewer");
@@ -103,18 +104,10 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    getCurrentSession().then((sessionUser: SessionUser | null) => {
-      if (isMounted && sessionUser) {
-        router.replace("/");
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
+    if (!isCheckingSession && sessionUser) {
+      router.replace("/");
+    }
+  }, [isCheckingSession, sessionUser, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

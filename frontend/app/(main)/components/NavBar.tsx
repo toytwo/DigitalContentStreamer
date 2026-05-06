@@ -2,20 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+import { useAuth } from "../../(auth)/AuthProvider";
 import { usePathname } from "next/navigation";
 
 export function NavBar(){
     const [profileImageUrl, setProfileImageUrl] = useState<string>("profiles/DefaultProfileImage.png");
-    const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+    const { sessionUser } = useAuth();
     const pathname = usePathname();
-    
-    useEffect(() => {
-        getCurrentSession()
-          .then((currentUser) => {
-                setSessionUser(currentUser);
-          });
-    }, []);
     
     useEffect(() => {
         if (!sessionUser) return;

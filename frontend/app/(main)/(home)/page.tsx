@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell, PageCard, PageHeader, Button } from "../../components/ui";
 import SessionActionButton from "../../(auth)/components/SessionActionButton";
 import SessionLabel from "../../(auth)/components/SessionLabel";
-import { getCurrentSession, type SessionUser } from "../../../lib/auth";
+import { useAuth } from "../../(auth)/AuthProvider";
 
 type ContentItem = {
   content_id: number;
@@ -29,17 +30,20 @@ const SORT_OPTIONS = [
 ] as const;
 
 export default function Home() {
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const router = useRouter();
+  const { sessionUser, isCheckingSession } = useAuth();
   const [featuredContent, setFeaturedContent] = useState<ContentItem[]>([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("release_date");
 
   useEffect(() => {
-    getCurrentSession()
-      .then((currentUser) => setSessionUser(currentUser))
-      .finally(() => setIsCheckingSession(false));
-  }, []);
+    if (!sessionUser) {
+      setFeaturedContent([]);
+      return;
+    }
+
+    loadContent(sortBy);
+  }, [sessionUser, sortBy]);
 
   const loadContent = (sort: SortOption) => {
     if (!sessionUser) return;
@@ -60,10 +64,6 @@ export default function Home() {
       })
       .finally(() => setIsLoadingContent(false));
   };
-
-  useEffect(() => {
-    loadContent(sortBy);
-  }, [sessionUser]);
 
   const handleSortChange = (newSort: SortOption) => {
     setSortBy(newSort);
@@ -134,8 +134,18 @@ export default function Home() {
               {featuredContent.map((content) => (
                 <div
                   key={content.content_id}
-                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/30 transition hover:-translate-y-1 hover:bg-white/[0.07]"
+                  className="relative rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/30 transition hover:-translate-y-1 hover:bg-white/[0.07]"
                 >
+                  {sessionUser?.role === "admin" && (
+                    <button
+                      onClick={() => router.push(`/contentedit/${content.content_id}`)}
+                      className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                      title="Edit content"
+                    >
+                      ✎
+                    </button>
+                  )}
+
                   <div className="mb-4 flex h-32 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400/20 to-slate-900 px-4 text-center text-lg font-semibold text-white">
                     {content.title}
                   </div>
@@ -163,6 +173,16 @@ export default function Home() {
               ))}
             </div>
           </section>
+        )}
+
+        {!isCheckingSession && sessionUser && (sessionUser.role === "creator" || sessionUser.role === "admin") && (
+          <button
+            onClick={() => router.push("/upload")}
+            className="fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-sky-600 text-3xl font-bold text-white shadow-xl transition hover:scale-110 hover:shadow-2xl"
+            title="Upload new content"
+          >
+            +
+          </button>
         )}
       </div>
     </AppShell>

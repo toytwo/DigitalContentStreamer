@@ -1,38 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "../../components/ui";
-import { getCurrentSession, logout, type SessionUser } from "../../../lib/auth";
-
-const SESSION_CHANGED_EVENT = "dcs-session-changed";
+import { useAuth } from "../AuthProvider";
 
 export default function SessionActionButton() {
   const router = useRouter();
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { sessionUser, logout, isCheckingSession } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    getCurrentSession()
-      .then((currentUser) => {
-        if (isMounted) {
-          setSessionUser(currentUser);
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   async function handleClick() {
     if (!sessionUser) {
@@ -44,15 +21,13 @@ export default function SessionActionButton() {
 
     try {
       await logout();
-      setSessionUser(null);
-      window.dispatchEvent(new Event(SESSION_CHANGED_EVENT));
       router.refresh();
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const buttonLabel = isLoading
+  const buttonLabel = isCheckingSession
     ? "Loading..."
     : sessionUser
       ? isSubmitting
@@ -63,7 +38,7 @@ export default function SessionActionButton() {
   return (
     <Button
       onClick={handleClick}
-      disabled={isLoading || isSubmitting}
+      disabled={isCheckingSession || isSubmitting}
       variant={sessionUser ? "danger" : "primary"}
     >
       {buttonLabel}
