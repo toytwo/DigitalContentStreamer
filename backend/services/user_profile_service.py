@@ -94,7 +94,7 @@ def delete_user(user_id: int) -> None:
     user_profile_repo.delete_user(user_id)
 
     for i in range(len(FILE_PATH_SUFFIXES)):
-        file_path_png = Path(f"database/images/profiles/{str(user_id)+FILE_PATH_SUFFIXES[i]+".png"}")
-        file_path_jpg = Path(f"database/images/profiles/{str(user_id)+FILE_PATH_SUFFIXES[i]+".jpg"}")
+        file_path_png = Path(f"database/images/profiles/{str(user_id)+FILE_PATH_SUFFIXES[i]+'.png'}")
+        file_path_jpg = Path(f"database/images/profiles/{str(user_id)+FILE_PATH_SUFFIXES[i]+'.jpg'}")
         file_path_png.unlink(missing_ok=True)
         file_path_jpg.unlink(missing_ok=True)

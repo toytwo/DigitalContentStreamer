@@ -95,4 +95,18 @@ BEGIN
     GROUP BY tier_id;
 END$$
 
+CREATE PROCEDURE UpdateFollowCount(
+    input_user_id INT
+)
+BEGIN
+    UPDATE Creator
+    SET follow_count = (
+        SELECT COUNT(creator_id)
+        FROM Follows
+        GROUP BY creator_id
+        HAVING creator_id = input_user_id
+    )
+    WHERE user_id = input_user_id
+
+END$$
 DELIMITER ;
