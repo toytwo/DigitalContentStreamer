@@ -88,4 +88,11 @@ BEGIN
     WHERE user_id = input_user_id;
 END$$
 
+CREATE PROCEDURE GetUserCountBySubscriptionType()
+BEGIN
+    SELECT tier_id, COUNT(*) AS user_count
+    FROM Subscription
+    GROUP BY tier_id;
+END$$
+
 DELIMITER ;
